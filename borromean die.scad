@@ -38,21 +38,19 @@ module ring() {
     }
 }
 
+difference() {
+    rotate([00, 00, 00]) ring();
+    translate([o, 0, 0]) rotate([0, 90, 0]) letter("2");
+    translate([-o, 0, 0]) rotate([0, -90, 0]) letter("5");
+}
+difference() {
+    rotate([90, 00, 90]) ring();
+    translate([0, -o, 0]) rotate([90, 0, 0]) letter("1");
+    translate([0, o, 0]) rotate([90, 0, 180]) letter("6");
+}
 
 difference() {
-    union(){
-        rotate([00, 00, 00]) ring();
-        rotate([90, 90, 00]) ring();
-        rotate([90, 00, 90]) ring();
-    }
-    union() {
-        translate([0, -o, 0]) rotate([90, 0, 0]) letter("1");
-        translate([0, o, 0]) rotate([90, 0, 180]) letter("6");
-        
-        translate([o, 0, 0]) rotate([0, 90, 0]) letter("2");
-        translate([-o, 0, 0]) rotate([0, -90, 0]) letter("5");
-        
-        translate([0, 0, o]) rotate([0, 0, 90])  letter("3");
-        translate([0, 0, -o]) rotate([180, 0, -90]) letter("4");
-    }
+    rotate([90, 90, 00]) ring();
+    translate([0, 0, o]) rotate([0, 0, 90])  letter("3");
+    translate([0, 0, -o]) rotate([180, 0, -90]) letter("4");
 }
