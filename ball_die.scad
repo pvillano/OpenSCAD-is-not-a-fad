@@ -1,7 +1,8 @@
-
-
-ball_bearing_radius = 5;
+ball_bearing_radius = 2;
 outer_diameter = 16;
+
+pip_r = 1;
+pip_sep = 5;
 
 minimum_thickness = 2;
 
@@ -29,13 +30,59 @@ module octahedron(r){
 }
 
 
-
-
-difference(){
-    sphere(d=outer_diameter);
-    minkowski(){
-        octahedron(outer_diameter/2 - minimum_thickness - ball_bearing_radius);
-        sphere(ball_bearing_radius);
-    }
+module ballish(d){
+    difference(){
+        sphere(d=d);
+        minkowski(){
+            octahedron(outer_diameter/2 - minimum_thickness - ball_bearing_radius);
+            sphere(ball_bearing_radius);
+        }
+    };
 }
-//still needs faces
+
+color("white") ballish(outer_diameter);
+
+d_pip = pip_sep/2;
+color("red") intersection(){
+    union(){
+        $fn=16;
+        rotate([0,0,0]) {
+            cylinder(h=outer_diameter, r = pip_r);
+        }
+        rotate([90,0,0]) {
+            translate([-d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+        }
+        rotate([0,90,0]) {
+            translate([-d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([0,0,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            
+        };
+        rotate([0,-90,0]) {
+            translate([-d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([-d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            
+        };
+        rotate([-90,0,0]) {
+            translate([-d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([-d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([0,0,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            
+        };
+        rotate([0,180,0]) {
+            translate([-d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([-d_pip,0,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([-d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,-d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,0,0]) cylinder(h=outer_diameter, r = pip_r);
+            translate([d_pip,d_pip,0]) cylinder(h=outer_diameter, r = pip_r);
+            
+        };
+    }
+    ballish(outer_diameter+.001);
+}
