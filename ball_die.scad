@@ -13,10 +13,9 @@ $fs = $preview ? 10 : 1;
 
 
 module multicolor(color) {
-    if (color==current_color || current_color == "ALL")
-        color(color){
-            children();
-        }
+    if (color==current_color || current_color == "ALL"){
+        color(color) children();
+    }
 }
 
 outer_diameter = 2 *(wiggle_room + minimum_thickness + ball_bearing_radius);
