@@ -6,10 +6,11 @@ pip_r = pip_sep/6;
 
 minimum_thickness = 3;
 
-$fa = .01;
-$fs = $preview ? 4 : 1;
+current_color = "ALL";
 
-current_color = "white";
+$fa = .01;
+$fs = $preview ? 10 : 1;
+
 
 module multicolor(color) {
     if (color==current_color || current_color == "ALL")
@@ -47,7 +48,7 @@ module ballish(d){
     difference(){
         sphere(d=d);
         minkowski(){
-            octahedron(outer_diameter/2 - minimum_thickness - ball_bearing_radius);
+            octahedron(wiggle_room);
             sphere(ball_bearing_radius);
         }
     };
@@ -102,6 +103,6 @@ difference(){
         }
     }
     if($preview){
-        cube([outer_diameter,outer_diameter,outer_diameter]);
+        translate([0,-outer_diameter,0]) cube([outer_diameter,outer_diameter,outer_diameter]);
     }
 }
