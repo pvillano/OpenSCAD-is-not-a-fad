@@ -47,15 +47,38 @@ PHI = (1 + sqrt(5))/2;
 module dodecahedron(r){
     scale(r) hull(){
         cube(size=2, center=true);
-        for(r_vec = [[0,0,0], [0,90,90], [90,0,90]]){
+        %for(r_vec = [[0,0,0], [0,90,90], [90,0,90]]){
             rotate(r_vec)
             linear_extrude(height=2/PHI, center=true)
             polygon([
-                [ PHI,  0],
-                [   0,  .01],
-                [-PHI,  0],
-                [   0, -.01],
+                [ PHI,   0],
+                [   0,  .1],
+                [-PHI,   0],
+                [   0, -.1],
             ]);
         }
     };
 }
+
+module icosahedron(r){
+    scale(r) hull(){
+        for(r_vec = [[0,0,0], [0,90,90], [90,0,90]]){
+            rotate(r_vec)
+            linear_extrude(height=2*PHI, center=true)
+            polygon([
+                [ 1,   0],
+                [ 0,  .1],
+                [-1,   0],
+                [ 0, -.1],
+            ]);
+        }
+    };
+}
+
+module rhombic_dodecahedron(r){
+    hull(){
+        cube(size=r, center=true);
+        octahedron(r);
+    };
+}
+
