@@ -25,14 +25,14 @@ def d4_twist():
 
     def pip_line(a, b):
         return line(
-            mix(a, b, 0.5 * pip_r), mix(a, b, 1.0 * pip_r), r=pip_r, capped=False
+            mix(a, b, 1.0 * pip_r), mix(a, b, 1.5 * pip_r), r=pip_r, capped=False
         )
 
     pips = color("red")(
         scale((size / 2,) * 3)(
             translate(a0)(pip_sphere)
-            + pip_line(a1, a0)
-            + pip_line(a1, b1)
+            + pip_line(b0, a0)
+            + pip_line(b0, b1)
             + pip_line(b1, a1)
             + pip_line(b1, b0)
             + translate(b1)(pip_sphere)
