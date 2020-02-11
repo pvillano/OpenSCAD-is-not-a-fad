@@ -20,7 +20,7 @@ def d4_twist():
         out.append(line(mix(a0, a1, i), mix(b0, b1, i), thickness / size))
 
     body = scale((size / 2,) * 3)(pairwise_hull(out))
-    pip_r = 1.1 * thickness / size
+    pip_r = 1.001 * thickness / size
     pip_sphere = sphere(r=pip_r)
 
     def pip_line(a, b):
@@ -39,9 +39,9 @@ def d4_twist():
         )
     )
 
-    generate_part(body + pips, "d4_twist")
-    generate_part(body - pips, "d4_twist_body")
-    generate_part(pips, "d4_twist_pips")
+    generate_part(rotate([54.75, 0, 0])(body + pips), "d4_twist", .05)
+    generate_part(rotate([54.75, 0, 0])(body - pips), "d4_twist_body", .05)
+    generate_part(rotate([54.75, 0, 0])(pips), "d4_twist_pips", .05)
 
 
 if __name__ == "__main__":
