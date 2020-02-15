@@ -2,7 +2,6 @@ from math import cos, sin
 
 from solid import *
 from solid.utils import *
-import numpy as np
 from rocky_common import *
 
 def rotate_list(l):
