@@ -39,4 +39,40 @@ def generate_part(part, partname, resolution=0.1):
     )
 
 
-__all__ = ["line", "mix", "pairwise_hull", "generate_part"]
+standard_pips = (
+    (
+        (0, 0),
+    ),
+    (
+        (-1, -1),
+        (1, 1),
+    ),
+    (
+        (-1, -1),
+        (0, 0),
+        (1, 1),
+    ),
+    (
+        (-1, -1),
+        (-1, 1),
+        (1, -1),
+        (1, 1),
+    ),
+    (
+        (-1, -1),
+        (-1, 1),
+        (0, 0),
+        (1, -1),
+        (1, 1),
+    ),
+    (
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ),
+)
+
+__all__ = ["line", "mix", "pairwise_hull", "generate_part", "standard_pips"]
