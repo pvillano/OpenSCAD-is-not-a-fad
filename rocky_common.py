@@ -1,15 +1,15 @@
-from typing import Iterable
 from os.path import join as path_join
+from typing import Iterable
 
 from solid import *
 from solid.utils import *
 
 
 def line(
-    a: Tuple[float, float, float],
-    b: Tuple[float, float, float],
-    r: float = 1.0,
-    capped=True,
+        a: Tuple[float, float, float],
+        b: Tuple[float, float, float],
+        r: float = 1.0,
+        capped=True,
 ):
     if capped:
         return hull()(translate(a)(sphere(r=r)), translate(b)(sphere(r=r)))

@@ -3,7 +3,6 @@ from solid.utils import *
 
 from rocky_common import *
 
-
 a0 = (1.0, 0.0, -sqrt(0.5))
 a1 = (0.0, 1.0, sqrt(0.5))
 b0 = (-1.0, 0.0, -sqrt(0.5))
@@ -39,9 +38,9 @@ def d4_twist():
         )
     )
 
-    generate_part(rotate([54.75, 0, 0])(body + pips), "d4_twist", .05)
-    generate_part(rotate([54.75, 0, 0])(body - pips), "d4_twist_body", .05)
-    generate_part(rotate([54.75, 0, 0])(pips), "d4_twist_pips", .05)
+    generate_part(rotate((54.75, 0, 0))(body + pips), "d4_twist", .05)
+    generate_part(rotate((54.75, 0, 0))(body - pips), "d4_twist_body", .05)
+    generate_part(rotate((54.75, 0, 0))(pips), "d4_twist_pips", .05)
 
 
 if __name__ == "__main__":
