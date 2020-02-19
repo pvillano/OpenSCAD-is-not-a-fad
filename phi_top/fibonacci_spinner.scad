@@ -3,7 +3,7 @@ $fs = 1;
 n = 200;
 r = 25;
 thickness = 1.2*r/sqrt(n);
-spindle_r = 1.75/2 + .15*3;
+spindle_r = thickness;
 echo("thickness is ", thickness, spindle_r);
 phi = (sqrt(5)-1)/2;
 
@@ -15,7 +15,7 @@ difference(){
                     sphere(r=thickness);
         hull(){
             sphere(r=spindle_r, $fs=.5);
-            translate([0,0,r*.7])
+            translate([0,0,r*.5])
                 sphere(r=spindle_r, $fs=.5);
         }
     }
