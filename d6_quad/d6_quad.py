@@ -7,12 +7,12 @@ from rocky_common import *
 def die(d=16.0, pip_d=3.0, pip_spacing=4.0):
     pip_list = []
     standard_rotations = (
-        lambda pip: translate((0, 0, d / 2))(rotate((0, 0, 0))(pip)),
-        lambda pip: translate((d / 2, 0, 0))(rotate((0, 90, 0))(pip)),
-        lambda pip: translate((0, d / 2, 0))(rotate((90, 0, 180))(pip)),
-        lambda pip: translate((0, -d / 2, 0))(rotate((90, 0, 0))(pip)),
-        lambda pip: translate((-d / 2, 0, 0))(rotate((0, 90, 180))(pip)),
-        lambda pip: translate((0, 0, -d / 2))(rotate((180, 0, 0))(pip)),
+        lambda pip: translate((   0,    0,  d/2))(rotate((  0,   0,   0))(pip)),
+        lambda pip: translate(( d/2,    0,    0))(rotate((  0,  90,   0))(pip)),
+        lambda pip: translate((   0,  d/2,    0))(rotate(( 90,   0, 180))(pip)),
+        lambda pip: translate((   0, -d/2,    0))(rotate(( 90,   0,   0))(pip)),
+        lambda pip: translate((-d/2,    0,    0))(rotate((  0,  90, 180))(pip)),
+        lambda pip: translate((   0,    0, -d/2))(rotate((180,   0,   0))(pip)),
     )
     for pips_on_face, rotation in zip(standard_pips, standard_rotations):
         base_pip = cylinder(r=pip_d / 2, h=pip_d)
@@ -35,7 +35,7 @@ def quadruple(obj, spacing):
     )
 
 
-def main(od=32, pip_d=3, pip_spacing=4, min_thickness=2):
+def main(od=32, min_thickness=2):
     body, pips = die(d=od / 2)
     quad_bod = quadruple(body, spacing=od / 4)
     quad_bod = minkowski()(quad_bod, sphere(r=min_thickness / 2))
