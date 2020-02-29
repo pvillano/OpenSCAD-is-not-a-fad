@@ -21,7 +21,7 @@ def argmin(iterable, key=None):
 if __name__ == '__main__':
     # parameters
     num_points = 1000
-    radius = 100  # mm
+    radius = 40  # mm
     spacing_factor = .7
     # calculated parameters
     height = radius / 4
@@ -46,5 +46,5 @@ if __name__ == '__main__':
             translate((nearest.x, nearest.y, 0))(sphere(r=point_radius)),
         )
 
-    mold -= translate([0,0,-radius])(cylinder(2*radius, radius))
+    mold -= translate((0,0,-radius))(cylinder(2*radius, radius))
     generate_part(mold, "vase_mold", 1)
