@@ -1,3 +1,4 @@
+import os
 from os.path import join as path_join
 from typing import Iterable
 
@@ -32,6 +33,8 @@ def pairwise_hull(objs: Iterable[OpenSCADObject]):
 
 
 def generate_part(part, partname, resolution=0.1):
+    if not os.path.exists("generated"):
+        os.makedirs("generated")
     scad_render_to_file(
         part,
         path_join("generated", f"{partname}.scad"),
