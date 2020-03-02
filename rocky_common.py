@@ -78,4 +78,9 @@ standard_pips = (
     ),
 )
 
-__all__ = ["line", "mix", "pairwise_hull", "generate_part", "standard_pips"]
+
+def torus(major_r, minor_r, resolution):
+    return rotate_extrude()(translate((major_r, 0, 0))(circle(minor_r)))
+
+
+__all__ = ["line", "mix", "pairwise_hull", "generate_part", "standard_pips", "torus"]
