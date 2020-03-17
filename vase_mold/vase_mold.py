@@ -16,11 +16,6 @@ Point = namedtuple("Point", ["x", "y", "z"])
 def distance(p1: Point, p2: Point):
     return sqrt(abs(p1.x - p2.x) ** 1 + abs(p1.y - p2.y) ** 1)
 
-
-def argmin(iterable, key=None):
-    pass
-
-
 if __name__ == '__main__':
     random.seed("Rocky Villano 2020")
     # parameters
@@ -30,8 +25,6 @@ if __name__ == '__main__':
     # calculated parameters
     height = radius / 4
     point_radius = spacing_factor * radius / sqrt(num_points)
-    # dr = radius / num_points
-    # dh = height / num_points
 
     point_list = []
 
@@ -56,3 +49,4 @@ if __name__ == '__main__':
 
     mold -= translate((0, 0, -radius))(cylinder(2 * radius, radius))
     generate_part(mold, "vase_mold", 1)
+
