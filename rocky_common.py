@@ -78,9 +78,12 @@ standard_pips = (
     ),
 )
 
+PHI = (1 + 5**.5)/2
+
+phi = 1/PHI
 
 def torus(major_r, minor_r, resolution):
     return rotate_extrude()(translate((major_r, 0, 0))(circle(minor_r)))
 
 
-__all__ = ["line", "mix", "pairwise_hull", "generate_part", "standard_pips", "torus"]
+__all__ = ["line", "mix", "pairwise_hull", "generate_part", "standard_pips", "torus", "PHI", "phi"]
