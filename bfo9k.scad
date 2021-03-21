@@ -30,8 +30,8 @@ usb_pcb_width = 18.53;
 top_layer_thickness = .197 * 25.4;
 // distance from the bottom of the pcb to the bottom of the keycaps
 a = .43*25.4;
-// distance from the top of the case to the bottom of the pcb
-cutout_h = .20 * 25.4 + pcb_thickness;
+// distance from the bot of the case to the top of the pcb
+cutout_h = .20 * 25.4 - pcb_thickness;
 
 stud_diameter = 4.0;
 stud_locations = [
@@ -74,7 +74,7 @@ module top_shell(){
         }
     }
     //walls
-    #difference(){
+    difference(){
         translate([-wall_thicc,-wall_thicc,-tot_height])
             cube([key_spacing*9+2*wall_thicc, key_spacing*6+2*wall_thicc, tot_height]);
         translate([0,0,-tot_height-1])
@@ -103,7 +103,7 @@ module bottom_shell(){
     
 }
 
-translate([0,0,-2*tot_height]) #bottom_shell();
+translate([0,0,-1*tot_height]) #bottom_shell();
 
 top_shell();
 
