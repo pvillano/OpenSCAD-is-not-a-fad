@@ -15,7 +15,7 @@ pcb_x = 171.45;
 pcb_y = 116.60;
 pcb_y2 = 111.8;
 bump_out = pcb_y - pcb_y2;
-bump_in = 6*key_spacing - pcb_y2;
+//bump_in = 6*key_spacing - pcb_y2;
 pcb_thickness = 1.62;
 bump1_x = 19.12; // from the other side
 bump1_w = 42.33;
@@ -25,12 +25,12 @@ bump2_w = 7.00;
 usb_pcb_thicc = 3.14;
 usb_pcb_width = 18.53;
 
-
+    
 //distance from the top of the pcb to the
 top_layer_thickness = .197 * 25.4;
 // distance from the bottom of the pcb to the bottom of the keycaps
 a = .43*25.4;
-// distance from the bot of the case to the top of the pcb
+// distance from the bot of top of the case to the top of the pcb
 cutout_h = .20 * 25.4 - pcb_thickness;
 
 stud_diameter = 4.0;
@@ -56,13 +56,7 @@ module top_test(){
     }
 }
 
-module top_layer_old(){
-    difference(){
-        for(i=[.5:9.5],j=[.5:6.5]){
-            translate([i*key_spacing, j*key_spacing, pcb_thickness/2]) cube([key_cutout_w,key_cutout_w,pcb_thickness*2], center=true);
-        }
-    }
-}
+
 
 module top_shell(){
     //top part
@@ -77,9 +71,16 @@ module top_shell(){
     difference(){
         translate([-wall_thicc,-wall_thicc,-tot_height])
             cube([key_spacing*9+2*wall_thicc, key_spacing*6+2*wall_thicc, tot_height]);
-        translate([0,0,-tot_height-1])
-            cube([key_spacing*9, key_spacing*6, tot_height+2]);
         
+        union(){
+            translate([0,0,-tot_height-1])
+                cube([key_spacing*9, key_spacing*6, tot_height+2]);
+            
+            translate([0,0,-tot_height-1])
+                cube([key_spacing*9, key_spacing*6, tot_height+2]);
+            translate([0,0,-tot_height-1])
+                cube([key_spacing*9, key_spacing*6, tot_height+2]);
+        }
         //gaps for jack, usb
         translate([key_spacing*9-bump1_x-bump1_w,-wall_thicc*1.5,-cutout_h-tot_height])
             cube([bump1_w,wall_thicc*2,tot_height]);
@@ -103,7 +104,7 @@ module bottom_shell(){
     
 }
 
-translate([0,0,-1*tot_height]) #bottom_shell();
+translate([0,0,-1*tot_height]) # bottom_shell();
 
 top_shell();
 
