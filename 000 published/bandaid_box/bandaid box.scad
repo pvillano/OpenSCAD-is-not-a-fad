@@ -1,15 +1,18 @@
 
+//thin wall thickness
 twt = .879;
+//bandaid thickness
 bt = .8;
 
 lwh1 = [79,33,1.4*40];
 lwh2 = [96,36,1.4*35];
 lwh3 = [96,43,1.4*25];
 
+//bounding box
 bbox = [100-1,44-1,152-1];
 
 h3 = bbox[2]-twt*4;
-difference(){
+rotate([0,-90,0]) difference(){
     translate([0,-twt,-twt]) cube(bbox);
     translate([bbox[0]-lwh1[0],0,0])
         cube([lwh1[0],bbox[1]+-2*twt,h3*.40]);

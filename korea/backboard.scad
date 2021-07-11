@@ -24,6 +24,6 @@ module p() intersection(){
     linear_extrude(center=true) offset(nullspc-twt/2-slop) projection() scale(1.5) import("Korea_local_name.stl", convexity=20);
 }
 rotate([0,0,261]){
-    //b();
-    p();
+    b();
+    //p();
 }

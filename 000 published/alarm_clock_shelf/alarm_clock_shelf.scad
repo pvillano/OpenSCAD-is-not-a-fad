@@ -1,7 +1,6 @@
 $fa = .01;
 $fs = $preview ? 5 : 1;
 
-
 width = 170;
 depth = 58+5;
 d=width*.378 + 10;
@@ -16,7 +15,7 @@ module shelf_void(){
     intersection(){
         cube([200,200,base_thickness]);
         minkowski(){
-            #clock_base(base_thickness);
+            clock_base(base_thickness);
             rotate([0,0,180]) cube([1, 200, 1]);
             rotate([0,0,180]) cube([200, 1, 1]);
         }
@@ -32,6 +31,7 @@ module shelf(){
         }
     }
 }
+
 module whole_shelf(){
     difference(){
         union(){
@@ -48,11 +48,4 @@ module whole_shelf(){
     }
 }
 
-module shelf_shell_test(){
-    layer_width = .675;
-    minkowski(){
-        cylinder(h=base_thickness+.4,r=layer_width);
-        shelf_void();
-    }
-}
 whole_shelf();
