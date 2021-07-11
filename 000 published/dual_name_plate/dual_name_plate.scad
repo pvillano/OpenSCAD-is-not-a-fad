@@ -1,12 +1,15 @@
+/* [Name] */
+//first name
+text1 = "SIRFIRST";
+//last name
+text2 = "LASTNAME";
+/* [Style] */
+// Use a Black or Bold Font Style
+font="Arial:Black";
 height = 14;
 spacing = 15;
 base_diameter=20;
 base_height = 3;
-
-// Use a Black or Bold Font Style
-font="Arial:Black";
-text1 = "EZEIKIAL";
-text2 = "POOPBUTT";
 
 assert(len(text1) == len(text2), "Texts must be same length");
 
