@@ -2,6 +2,7 @@
 $fa = .01;
 $fs = $preview ? 1 : .1;
 
+//width
 w = 80;
 h = w * 2 /3;
 cookie_thickness=1/4*25.4;
@@ -9,6 +10,8 @@ d2 = cookie_thickness;
 thickness = 1.67;  // 4 lines at .2mm layer height
 thickness2 = 3.30; // 8 lines at .2mm layer height
 
+
+//reused for all flags
 module border(){
     translate([0,0,-cookie_thickness/4]) borderize(){
         cube([w, h, cookie_thickness*1.5], center=true);
@@ -20,9 +23,6 @@ module border(){
         }
     }
 }
-
-
-
 
 // from https://gist.github.com/anoved/9622826
 module Star(points, outer, inner) {
@@ -58,8 +58,7 @@ module pentagram(outer) {
     Star(5,outer, inner);
 }
 
-
-
+//korea bars
 module bars(breaks = [0,0,0]){
     one = w/3;
     dy = one * (1/3-1/12)/2;
@@ -83,6 +82,7 @@ module bars(breaks = [0,0,0]){
     }
 }
 
+
 module tadpole(){
     one = w/3;
     difference(){
@@ -99,6 +99,7 @@ module tadpole(){
     }
 }
 
+
 //italy
 translate([-w*1.5,0,0]){
     border();
@@ -114,6 +115,7 @@ translate([0,0,0]){
         rotate([0,0,90]) pentagram(10);
     }
 }
+
 
 //korea
 translate([w*1.5,0,0]){

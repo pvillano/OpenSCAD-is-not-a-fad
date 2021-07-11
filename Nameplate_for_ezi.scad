@@ -10,6 +10,7 @@ text2 = "POOPBUTT";
 
 assert(len(text1) == len(text2), "Texts must be same length");
 
+//letters
 for(i=[0:len(text1)-1]){
     translate([spacing*i, spacing*i, 0]){
         intersection() {
@@ -24,6 +25,7 @@ for(i=[0:len(text1)-1]){
     }
 }
 
+//base
 // you may want to translate this up a bit if letters are barely touching e.g. ♥
 translate([0,0,-base_height]) hull(){
     cylinder(d=base_diameter, h=base_height);
