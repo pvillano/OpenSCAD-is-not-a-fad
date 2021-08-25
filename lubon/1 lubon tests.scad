@@ -1,6 +1,6 @@
 
 
-gap=.4;
+gap=1;
 grid=15;
 
 module lubonify(count=4){
@@ -56,10 +56,10 @@ module spinny(){
 }
 
 module unspinny(){
-    icube(1.5,1,1,0);
-    icube(1.5,1,-2.5,-1);
-    icube(1.5,1,-2.5,0);
-    icube(1.5,1,1,-1);
+    icube(2,1,1,0);
+    icube(2,1,-3,-1);
+    icube(2,1,-3,0);
+    icube(2,1,1,-1);
     hull(){
         translate([grid+gap/2,gap/2,gap/2])
             cube([.001,grid-gap,grid-gap]);
