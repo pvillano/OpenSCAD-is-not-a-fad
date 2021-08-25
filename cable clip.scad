@@ -2,10 +2,10 @@ $fa = .01;
 $fs = $preview ? 5 : .1;
 
 diameter = 15;
-wall_thic = 1.28;
+wall_thic = 1.67;
 
-command_width = 15;
-command_height = 50;
+command_width = 15+2;
+command_height = 50+2;
 
 difference(){
     cylinder(h=command_width, d=diameter+2*wall_thic, center=true);
