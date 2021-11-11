@@ -12,8 +12,9 @@ hole_h1 = 10;
 hole_h2 = 21.84;
 hole_l1 =47.4;
 
-
+// the fan has a bigger hole than its width
 d_arctic = 128;
+// but that hole gets kinda cut off
 twt_arctic = 1.65;
 support_thickness_a = 5;
 support_thickness = min(support_thickness_a, (width_inner-120)/2);
@@ -24,7 +25,10 @@ module void(h){
         cube([120-twt_arctic*2, 120-twt_arctic*2,h+.2],center=true);
     }
 }
-
+/*
+    onum: number of squares
+    inum: number of rectangles in each square
+ */
 module crossbone(w,onum,inum=5,twt=.86,h=5){
     o_max=(onum-1)/2;
     i_max=(inum-1)/2;
