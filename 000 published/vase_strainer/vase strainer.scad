@@ -13,13 +13,14 @@ Mesh_Overhang = 2;
 Buffer_Height = .4; // [.1:.05:.4]
 //Horizontal gap between triangles
 Buffer_Width = .4; // [.1:.05:.4]
+/* [Hidden] */
 module __Customizer_Limit__() {};
 
 d = Diameter;
 h = Height;
 
-$fa = .01;
-$fs = $preview ? 1 : .3;
+//$fa = .01;
+//$fs = $preview ? 1 : .3;
 sin60 = sin(60);
 c_count = round(d * PI / (Mesh_Spacing + Buffer_Width));
 z_count = round(h / (Mesh_Spacing + Buffer_Height));
