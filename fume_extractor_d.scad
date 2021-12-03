@@ -1,18 +1,16 @@
-$fa = .01;
-$fs = $preview ? 5 : .1;
-
-fan_xy = 120.15 + .1;
+fan_xy = 120.15 + .2;
 fan_z = 25.3 + .1;
 //filter_xy = 120;
 filter_z = 10;
-screw_spacing = 104.8;
-screw_d = 4.7;
 hole_d = 125.5;
 thickness_xy=2.41;
 thickness_z=2.4;
 
 m4_d = 3.7;
 m4_l = 4.0;
+/* [Hidden] */
+$fa = .01;
+$fs = $preview ? 5 : .1;
 
 o_width= thickness_xy*4+fan_xy+filter_z*2;
 o_height=o_width;
@@ -49,12 +47,12 @@ module bottom(){
 	difference(){
 		translate([0,0,-fan_xy/2+overlap])
 			base();
-		translate([0,0,15])
+		translate([0,0,15-.01])
 			cube([o_width+.2,o_width+.2,30], center=true);
-	for(i=[1:4])
-		rotate([0,0,90*i])
-		translate([(o_width+fan_xy)/4,(o_width+fan_xy)/4,-10])
-			cylinder(h=10+.1,d=m4_d);
+		for(i=[1:4])
+			rotate([0,0,90*i])
+			translate([(o_width+fan_xy)/4,(o_width+fan_xy)/4,-10])
+				cylinder(h=10+.1,d=m4_d);
 	}
 }
 
@@ -107,7 +105,7 @@ module hood() {
 	translate([0,0,fan_z/2]) difference(){
 		linear_extrude(d,scale=(fan_xy*scale+thickness_xy*2)/(fan_xy+thickness_xy*2))
 			square(fan_xy+thickness_xy*2, center=true);
-		linear_extrude(d,scale=scale) square(fan_xy, center=true);
+		linear_extrude(d+.01,scale=scale) square(fan_xy, center=true);
 	}
 }
 c=-fan_z/2-thickness_z-7.4;
