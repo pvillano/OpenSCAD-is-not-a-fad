@@ -1,6 +1,5 @@
-use <platonic_solids.scad>
 
-current_color = "red";
+current_color = "ALL";
 font_size = 10;
 letter_depth = 15;
 radius = 20;
@@ -14,7 +13,7 @@ module multicolor(color) {
 }
 
 module letter(l) {
-    translate([0,0,-letter_depth])
+    translate([0,0,-letter_depth+.01])
     linear_extrude(height = letter_depth) {
         text(l, size = font_size, halign = "center",
             valign = "center", $fn = 16);
@@ -22,6 +21,31 @@ module letter(l) {
 }
 
 
+/*
+    Points spiral down from the top, as do faces.
+*/
+module octahedron(r){
+    scale(r) polyhedron(
+        points=[
+            [ 0,  0,  1],
+            [ 1,  0,  0],
+            [ 0,  1,  0],
+            [-1,  0,  0],
+            [ 0, -1,  0],
+            [ 0,  0, -1],
+        ],
+        faces=[
+            [0, 1, 2],
+            [0, 2, 3],
+            [0, 3, 4],
+            [0, 4, 1],
+            [5, 2, 1],
+            [5, 3, 2],
+            [5, 4, 3],
+            [5, 1, 4],
+        ]
+    );
+}
 
 module rhombic_dodecahedron(r){
     hull(){
