@@ -39,8 +39,8 @@ difference(){
     //r=2/sin(60)+.4;
    union(){
     // spring screw mounts
-            translate([ 86,-33,23]) cube([10,57,2]);
-            translate([-27,-33,23]) cube([10,57,2]);
+            translate([ 86,-33,23]) cube([10,20,2]);
+            translate([-27,-33,23]) cube([10,20,2]);
             translate([ 91,-33,23]) rotate([0,0,0]) cylinder(r=5, h=2, $fn=6);
             translate([-22,-33,23]) rotate([0,0,0]) cylinder(r=5, h=2, $fn=6); 
    }
