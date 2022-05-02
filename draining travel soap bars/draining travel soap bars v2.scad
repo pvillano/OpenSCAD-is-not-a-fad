@@ -1,16 +1,19 @@
 $fs = $preview ? 10 : 1;
 sides=6;
+
 // should include slop!
 h_soap = 15;
 // should include slop!
 d_soap = 40;
-wall_thickness = 4;
+wall_thickness = 3;
+floor_thickness=2;
 foot_height = 8;
 
 h_magnet = 2;
 d_magnet = 4;
 
-hole_spacing = 15;
+wobble = 4;
+hole_spacing = (d_soap+floor_thickness)/3;
 hole_percent = 75;
 /*
 # travel soap container
@@ -71,25 +74,50 @@ for a quadrilateral, two opposite are skew iff the other pair of opposite edges 
 * option 4:( match concave and convex saddles
 */
 
-r_0 = d_soap / 2 * (1 / sin(60));
-r_1 = (d_soap / 2 + wall_thickness) * (1 / sin(60));
+r_0 = d_soap / 2 * (1 / cos(180/sides)) * (1/cos(wobble));
+r_1 = (d_soap / 2 + wall_thickness) * (1 / cos(180/sides)) * (1/cos(wobble));
 h_0 = 0;
-h_1 = h_soap;
+h_1 = h_soap+floor_thickness;
 
 
 //r, theta, phi
 function sph2cart(rtp) = [rtp.x*sin(rtp.y)*cos(rtp.z), rtp.x*sin(rtp.y)*sin(rtp.z), rtp.x*cos(rtp.y)];
 
-wobble = 6;
-
-//todo account for wobble in real r0 r1, available height
-// todo strainer
-// todo sides, also on v1
+// todo magnets
 proto_points = [[r_0, h_0], [r_0, h_1], [r_1, h_1], [r_1, h_0]];
 function sector(idx, wobble) = [for (pp=proto_points) (sph2cart([pp[0], wobble, idx*360/sides]) + [0,0,pp[1]])];
 
 points = [for (i=[1:sides]) each sector(i, 90-wobble*(2*(i%2)-1))];
 //for(point=points)translate(point) cube(center=true);
 proto_faces = [[0,4,7,3], [1,5,4,0],[2,6,5,1],[3,7,6,2]];
-faces = [for(i=[0:5]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
-polyhedron(points=points,faces=faces);
+faces = [for(i=[0:sides-1]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
+
+module chamber(){
+    translate([0,0,-r_0*sin(wobble) -floor_thickness]) polyhedron(points=points,faces=faces);
+    translate([0,0,-floor_thickness]) difference(){
+        cylinder(d=d_soap * (1 / cos(180/sides)),h=floor_thickness, $fn=sides);
+        for (i = [- 5:5], j = [- 5:5])
+            rotate([0,0,30])
+            translate([hole_spacing * i, 0, 0])
+            rotate([0, 0, 60])
+            translate([j*hole_spacing,0,-.1])
+            rotate([0, 0, 30])
+            cylinder(d = (hole_spacing-floor_thickness) / cos(30), h=floor_thickness+.2,  $fn = 6);
+    }
+}
+
+
+module lid(){
+    difference(){
+        translate([0,0,-r_0*sin(wobble) -floor_thickness])polyhedron(points=points,faces=faces);
+        cylinder(r=r_1*11,h=h_1*11, $fn=4);
+    }
+    translate([0,0,-floor_thickness])
+        cylinder(d=d_soap * (1 / cos(180/sides)),h=floor_thickness, $fn=sides);
+}
+
+
+chamber();
+translate([0,0,h_1+ 10]) lid();
+
+%cylinder(h=h_soap, d=d_soap, $fn=24);
