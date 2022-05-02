@@ -1,5 +1,5 @@
 $fs = $preview ? 10 : 1;
-
+sides=6;
 // should include slop!
 h_soap = 15;
 // should include slop!
@@ -70,23 +70,26 @@ for a quadrilateral, two opposite are skew iff the other pair of opposite edges 
 * option 3:( make every saddle concave
 * option 4:( match concave and convex saddles
 */
-function cyl2cart(r, theta,z) = [r*cos(theta),r*sin(theta), z];
 
 r_0 = d_soap / 2 * (1 / sin(60));
 r_1 = (d_soap / 2 + wall_thickness) * (1 / sin(60));
 h_0 = 0;
 h_1 = h_soap;
 
-angles = [0,1,2,3,4,5]*360/6;
-//echo(angles);
+
+//r, theta, phi
+function sph2cart(rtp) = [rtp.x*sin(rtp.y)*cos(rtp.z), rtp.x*sin(rtp.y)*sin(rtp.z), rtp.x*cos(rtp.y)];
+
+wobble = 6;
+
+//todo account for wobble in real r0 r1, available height
+// todo strainer
+// todo sides, also on v1
 proto_points = [[r_0, h_0], [r_0, h_1], [r_1, h_1], [r_1, h_0]];
-function sector(idx)=[for(pp=proto_points) [pp[0],idx*360/6,pp[1]+(idx%2)*foot_height]];
-//pragma syntax highlighter ignore ffs
-cyl_points = [for (idx=[0:5]) each sector(idx)];
-//echo(cyl_points);
-points = [for (cyl_point = cyl_points) cyl2cart(cyl_point[0],cyl_point[1],cyl_point[2])];
-//echo(points);
-//for(point=points) translate(point) cube(center=true);
+function sector(idx, wobble) = [for (pp=proto_points) (sph2cart([pp[0], wobble, idx*360/sides]) + [0,0,pp[1]])];
+
+points = [for (i=[1:sides]) each sector(i, 90-wobble*(2*(i%2)-1))];
+//for(point=points)translate(point) cube(center=true);
 proto_faces = [[0,4,7,3], [1,5,4,0],[2,6,5,1],[3,7,6,2]];
 faces = [for(i=[0:5]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
 polyhedron(points=points,faces=faces);
