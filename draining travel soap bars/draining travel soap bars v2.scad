@@ -1,19 +1,20 @@
 $fs = $preview ? 10 : 1;
-sides=6;
+sides = 6;
 
 // should include slop!
 h_soap = 15;
 // should include slop!
 d_soap = 40;
-wall_thickness = 3;
-floor_thickness=2;
+wall_thickness = 4;
+floor_thickness = 2;
 foot_height = 8;
 
-h_magnet = 2;
-d_magnet = 4;
+h_magnet = 2 + .5;
+w_magnet = 5 + .2;
+l_magnet = 20 + .2;
 
 wobble = 4;
-hole_spacing = (d_soap+floor_thickness)/3;
+hole_spacing = (d_soap + floor_thickness+.01) / 3;
 hole_percent = 75;
 /*
 # travel soap container
@@ -73,51 +74,84 @@ for a quadrilateral, two opposite are skew iff the other pair of opposite edges 
 * option 3:( make every saddle concave
 * option 4:( match concave and convex saddles
 */
-
-r_0 = d_soap / 2 * (1 / cos(180/sides)) * (1/cos(wobble));
-r_1 = (d_soap / 2 + wall_thickness) * (1 / cos(180/sides)) * (1/cos(wobble));
+//distance from center
+r_0 = d_soap / 2 * (1 / cos(180 / sides)) * (1 / cos(wobble));
+r_1 = (d_soap / 2 + wall_thickness) * (1 / cos(180 / sides)) * (1 / cos(wobble));
 h_0 = 0;
-h_1 = h_soap+floor_thickness;
+h_1 = h_soap + floor_thickness;
 
 
 //r, theta, phi
-function sph2cart(rtp) = [rtp.x*sin(rtp.y)*cos(rtp.z), rtp.x*sin(rtp.y)*sin(rtp.z), rtp.x*cos(rtp.y)];
+function sph2cart(rtp) = [rtp.x * sin(rtp.y) * cos(rtp.z), rtp.x * sin(rtp.y) * sin(rtp.z), rtp.x * cos(rtp.y)];
 
-// todo magnets
-proto_points = [[r_0, h_0], [r_0, h_1], [r_1, h_1], [r_1, h_0]];
-function sector(idx, wobble) = [for (pp=proto_points) (sph2cart([pp[0], wobble, idx*360/sides]) + [0,0,pp[1]])];
+module magnets() {
+    //magnets need to be rotated about a derived angle
+    //right triangle from top of sloped surface to midpoint of sloped surface to xy intersection
+    radius = 1; //to corner
+    horizontal_apothem = radius * cos(180 / sides); //to face
+    side = radius * sin(180 / sides) * 2;
+    dh = radius * tan(wobble);
+    tilt = atan2(dh, side / 2);
+    for (i = [1:sides]) {
+        theta = (i + .5) * 360 / sides;
+        direction = 2 * (i % 2) - 1;
+        rotate([tilt * - direction, 0, theta])
+            translate([(d_soap + wall_thickness) / 2, 0, 0])
+                cube([h_magnet, l_magnet, w_magnet * 2], center = true);
+    }
 
-points = [for (i=[1:sides]) each sector(i, 90-wobble*(2*(i%2)-1))];
-//for(point=points)translate(point) cube(center=true);
-proto_faces = [[0,4,7,3], [1,5,4,0],[2,6,5,1],[3,7,6,2]];
-faces = [for(i=[0:sides-1]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
+    //todo magnets stick out a little
+}
 
-module chamber(){
-    translate([0,0,-r_0*sin(wobble) -floor_thickness]) polyhedron(points=points,faces=faces);
-    translate([0,0,-floor_thickness]) difference(){
-        cylinder(d=d_soap * (1 / cos(180/sides)),h=floor_thickness, $fn=sides);
+module walls() {
+    proto_points = [[r_0, h_0], [r_0, h_1], [r_1, h_1], [r_1, h_0]];
+    function sector(idx, wobble) = [for (pp = proto_points) (sph2cart([pp[0], wobble, idx * 360 / sides]) + [0, 0, pp[1]
+        ])];
+
+    //points = [for (i=[1:sides]) each sector(i, 90-wobble*(2*(i%2)-1))];
+    sectors = [for (i = [1:sides]) sector(i, 90 - wobble * (2 * (i % 2) - 1))];
+    points = [for (i = [0:len(sectors) - 1], j = [0:len(sectors[0]) - 1]) sectors[i][j]];
+    //TESTING// for(point=points)translate(point) cube(center=true);
+
+    proto_faces = [[0, 4, 7, 3], [1, 5, 4, 0], [2, 6, 5, 1], [3, 7, 6, 2]];
+    //faces = [for(i=[0:sides-1]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
+    face_groups = [for (i = [0:sides - 1]) [for (pf = proto_faces) [for (j = pf) (j + i * 4) % len(points)]]];
+    faces = [for (i = [0:len(face_groups) - 1], j = [0:len(face_groups[0]) - 1]) face_groups[i][j]];
+    polyhedron(points = points, faces = faces, convexity = 20);
+}
+
+module chamber() {
+    translate([0, 0, - r_0 * sin(wobble) - floor_thickness]) difference() {
+        walls();
+        #magnets();
+        translate([0, 0, h_1]) #magnets();
+    }
+
+    //floor
+    translate([0, 0, - floor_thickness]) difference() {
+        cylinder(d = d_soap * (1 / cos(180 / sides)), h = floor_thickness, $fn = sides);
         for (i = [- 5:5], j = [- 5:5])
-            rotate([0,0,30])
+        rotate([0, 0, 30])
             translate([hole_spacing * i, 0, 0])
-            rotate([0, 0, 60])
-            translate([j*hole_spacing,0,-.1])
-            rotate([0, 0, 30])
-            cylinder(d = (hole_spacing-floor_thickness) / cos(30), h=floor_thickness+.2,  $fn = 6);
+                rotate([0, 0, 60])
+                    translate([j * hole_spacing, 0, - .01])
+                        rotate([0, 0, 30])
+                            cylinder(d = (hole_spacing - floor_thickness) / cos(30), h = floor_thickness + .02, $fn = 6);
     }
 }
 
 
-module lid(){
-    difference(){
-        translate([0,0,-r_0*sin(wobble) -floor_thickness])polyhedron(points=points,faces=faces);
-        cylinder(r=r_1*11,h=h_1*11, $fn=4);
+module lid() {
+    difference() {
+        translate([0, 0, - r_0 * sin(wobble) - floor_thickness]) walls();
+        cylinder(r = r_1 * 11, h = h_1 * 11, $fn = 4);
     }
-    translate([0,0,-floor_thickness])
-        cylinder(d=d_soap * (1 / cos(180/sides)),h=floor_thickness, $fn=sides);
+    translate([0, 0, - floor_thickness])
+        cylinder(d = d_soap * (1 / cos(180 / sides)), h = floor_thickness, $fn = sides);
 }
 
 
 chamber();
-translate([0,0,h_1+ 10]) lid();
+//translate([0, 0, h_1 + 10]) lid();
 
-%cylinder(h=h_soap, d=d_soap, $fn=24);
+%cylinder(h = h_soap, d = d_soap, $fn = 24);
