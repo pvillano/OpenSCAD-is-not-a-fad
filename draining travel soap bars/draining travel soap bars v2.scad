@@ -5,15 +5,18 @@ sides = 6;
 h_soap = 15;
 // should include slop!
 d_soap = 40;
-wall_thickness = 4;
+twt=1.29;
 floor_thickness = 2;
 foot_height = 8;
 
-h_magnet = 2 + .5;
-w_magnet = 5 + .2;
-l_magnet = 20 + .2;
+h_magnet = 54.4/30 + .2;
+w_magnet = 20.17/4 + .5;
+l_magnet = 38.17/2 + .2;
 
-wobble = 4;
+
+wall_thickness = 2*twt+h_magnet;
+
+wobble = 8;
 hole_spacing = (d_soap + floor_thickness+.01) / 3;
 hole_percent = 75;
 /*
@@ -120,6 +123,25 @@ module walls() {
     polyhedron(points = points, faces = faces, convexity = 20);
 }
 
+module support_blocker(){
+    proto_points = [[r_0-1, h_0], [r_0-1, h_1], [r_1+4, h_1], [r_1+4, h_0]];
+    function sector(idx, wobble) = [for (pp = proto_points) (sph2cart([pp[0], wobble, idx * 360 / sides]) + [0, 0, pp[1]
+        ])];
+
+    //points = [for (i=[1:sides]) each sector(i, 90-wobble*(2*(i%2)-1))];
+    sectors = [for (i = [1:sides]) sector(i, 90 - wobble * (2 * (i % 2) - 1))];
+    points = [for (i = [0:len(sectors) - 1], j = [0:len(sectors[0]) - 1]) sectors[i][j]];
+    //TESTING// for(point=points)translate(point) cube(center=true);
+
+    proto_faces = [[0, 4, 7, 3], [1, 5, 4, 0], [2, 6, 5, 1], [3, 7, 6, 2]];
+    //faces = [for(i=[0:sides-1]) each [for (pf=proto_faces) [for(j=pf) (j+i*4)%len(points)]]];
+    face_groups = [for (i = [0:sides - 1]) [for (pf = proto_faces) [for (j = pf) (j + i * 4) % len(points)]]];
+    faces = [for (i = [0:len(face_groups) - 1], j = [0:len(face_groups[0]) - 1]) face_groups[i][j]];
+		
+    polyhedron(points = points, faces = faces, convexity = 20);
+}
+
+
 module chamber() {
     translate([0, 0, - r_0 * sin(wobble) - floor_thickness]) difference() {
         walls();
@@ -151,7 +173,7 @@ module lid() {
 }
 
 
-chamber();
+//chamber();
 //translate([0, 0, h_1 + 10]) lid();
-
+support_blocker();
 %cylinder(h = h_soap, d = d_soap, $fn = 24);
