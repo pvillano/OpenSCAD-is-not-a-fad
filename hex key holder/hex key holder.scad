@@ -41,40 +41,45 @@ module key(w, h, d, r_bend) {
 
 //!key(w,h,8,14);
 
-module key_slot_neg(d, w, slop) {
-    //centered on the y axis, extending into the x axis, with slop in the z
-    r = d / 2;
-    circumradius = r * 1 / sin(60);
-    translate([0, 0, - circumradius / 2])
+module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 0, 0]){
+
+    //slop: how much jiggle the key should have in the locked or unlocked position
+    //should be subtracted from the volume below the x plane, or lower for more strength
+    r_sloppy = d / 2 + slop/2;
+    circumradius_sloppy = r_sloppy * 1 / sin(60);
+
+    //translate([0, 0, -(circumradius_sloppy - r_sloppy)*tan(60)]) {
+    translate([0, 0, 0]) {
         rotate([0, 90, 0]) {
-            cylinder(h = w, r = circumradius + slop / 2);
-            %cylinder(h = w + 1, r = circumradius, $fn = 6);
+            rotate([0, 0, 90]) cylinder(h = w, r = circumradius_sloppy, $fn = 6);
+            intersection() {
+                cylinder(h = w, r = circumradius_sloppy);
+                translate([0, - circumradius_sloppy, 0]) cube([circumradius_sloppy, 2 * circumradius_sloppy, w]);
+            }
+            //cylinder(h=w,r = radius_scrapey);
+
+            //unlocked
+            //% translate([0,0,-.1]) cylinder(h = w + .2, r = d / 2 / sin(60), $fn = 6);
+            //locked
+//            % rotate([0, 0, 90])translate([0, 0, - .1]) cylinder(h = w + .2, r = d / 2 / sin(60), $fn = 6);
         }
-    translate([0, - r, 0])
-        cube([w, d + slop, max(10, d * 1.5)]);
+        translate([0, - r_sloppy, 0])
+            cube([w, 2 * r_sloppy, max(10, d * 1.5)]);
+    }
 }
 
 
 
 rotate([30, 0, 0]) difference() {
-    h = 15;
-    translate([0.01, - 15 / 2, 0]) cube([25, 15, h]);
-    translate([0, 0, h - 3]) key_slot_neg(8, 20, .1);
+    d=8;
+    h = 10;
+    l = 20;
+    w = 20;
+    r_bulge=d + 4;
+    union(){
+        rotate([-30, 0, 0]) translate([0,0,-h/2-d/2/sin(60)]) cube([l, 30, h], center=true);
+        translate([0,0,-d]) rotate([0,90,0]) rotate([0,0,90])cylinder(r=r_bulge,h=w, center=true, $fn=6);
+    }
+    key_slot_neg(d=d, w=w+.2, center=true);
+    rotate([-30, 0, 0]) translate([0,0,-999/2-9]) cube(999, center=true);
 }
-translate([0, - 25 / 2, - 2.5]) cube([25, 25, 5]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
