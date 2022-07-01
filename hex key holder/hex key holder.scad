@@ -4,7 +4,7 @@ $fs=.3;
 
 imperial_size_list = [.05, 1/16, 5/64, 3/32, 1/8, 5/32, 3/16, 7/32, 1/4, 5/16, 3/8];
 imperial_label_list = [".05", "1/16", "5/64", "3/32", "1/8", "5/32", "3/16", "7/32", "1/4", "5/16", "3/8"];
-assert(len(imperial_sizes) == len(imperial_size_strs), "Count of imperial sizes and labels must be equal.");
+assert(len(imperial_size_list) == len(imperial_label_list), "Count of imperial sizes and labels must be equal.");
 
 metric_sizes = [2, 2.5, 3, 4, 5, 6, 8];
 
