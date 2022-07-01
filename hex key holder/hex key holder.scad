@@ -1,3 +1,7 @@
+$fa =.01;
+$fs=.3;
+
+
 imperial_sizes = [.05, 1/16, 5/64, 3/32, 1/8, 5/32, 3/16, 7/32, 1/4, 5/16, 3/8];
 metric_sizes = [2, 2.5, 3, 4, 5, 6, 8];
 w=44.05;
@@ -25,4 +29,42 @@ module key(w, h, d, r_bend){
     %cube([w,circumdiameter,h]);
 }
 
-key(w,h,8,10);
+//key(w,h,8,10);
+
+module key_slot_neg(d,w,slop){
+    //centered on the y axis, extending into the x axis, with slop in the z
+    r=d/2;
+    circumradius = r*1/sin(60);
+    translate([0,0,-circumradius/2])
+        rotate([0,90,0]){
+            cylinder(h=w,r=circumradius+slop/2);
+            %cylinder(h=w+1,r=circumradius,$fn=6);
+        }
+    translate([0,-r,0])
+        cube([w,d+slop,max(10,d*1.5)]);
+}
+
+
+
+rotate([30,0,0]) difference(){
+    h=15;
+    translate([0.01,-15/2,0])cube([25,15,h]);
+    translate([0,0,h-3]) key_slot_neg(8,20,.1);
+}
+translate([0,-25/2,-2.5])cube([25,25,5]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
