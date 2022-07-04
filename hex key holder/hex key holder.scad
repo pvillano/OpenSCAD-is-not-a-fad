@@ -1,5 +1,5 @@
 $fa = .01;
-$fs = .3;
+$fs = $preview ? 3 : .3;
 
 
 imperial_size_list = [.05, 1 / 16, 5 / 64, 3 / 32, 1 / 8, 5 / 32, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8];
@@ -8,9 +8,14 @@ assert(len(imperial_size_list) == len(imperial_label_list), "Count of imperial s
 
 metric_sizes = [2, 2.5, 3, 4, 5, 6, 8];
 
-
 w = 44.05;
 h = 116.8;
+
+spacing=2;
+
+hexup = 1/sin(60);
+
+function sum(v) = [for(p=v) 1] * v;
 
 module key(w, h, d, r_bend) {
     /*
@@ -53,7 +58,8 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
         rotate([0, 90, 0]) {
             rotate([0, 0, 90]) cylinder(h = w, r = circumradius_sloppy, $fn = 6);
             intersection() {
-                cylinder(h = w, r = circumradius_sloppy);
+                if($preview) cylinder(h = w, r = circumradius_sloppy, $fn=24);
+                else cylinder(h = w, r = circumradius_sloppy);
                 translate([0, - circumradius_sloppy, 0]) cube([circumradius_sloppy, 2 * circumradius_sloppy, w]);
             }
             //cylinder(h=w,r = radius_scrapey);
@@ -68,9 +74,7 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
     }
 }
 
-
-
-rotate([30, 0, 0]) difference() {
+module demo() rotate([30, 0, 0]) difference() {
     d=8;
     h = 10;
     l = 20;
@@ -83,3 +87,30 @@ rotate([30, 0, 0]) difference() {
     key_slot_neg(d=d, w=w+.2, center=true);
     rotate([-30, 0, 0]) translate([0,0,-999/2-9]) cube(999, center=true);
 }
+
+module layout(){
+    metric_reversed = [for(i=[1:len(metric_sizes)]) metric_sizes[len(metric_sizes)-i]];
+    for(i=[0:len(metric_reversed)-1]){
+        size=metric_reversed[i];
+        sum_less = metric_reversed * [for(j=[0:len(metric_reversed)-1])  (j<i) ? 1 : 0];
+
+        separation = 1.0 * sum_less + 1*i;
+
+        h_i = h * size/max(metric_reversed);
+        w_i = w * size/max(metric_reversed);
+
+        neutral = [0,-size*hexup, -h_i];
+        *translate([separation, -separation, 0])
+            rotate([-90,0,0])
+            translate(neutral)
+            key(w_i, h_i,size,size*2);
+
+
+        translate([w-w_i/2, -separation-size/2, size*hexup/2])
+            rotate([30,0,0])
+            key_slot_neg(size,w_i/2);
+    }
+    translate([0,-h,-1]) cube([w,h,1]);
+}
+
+layout();
