@@ -12,6 +12,7 @@ intersection(){
     cylinder(h=height,d=circumdiameter,$fn=6);
     cylinder(d1=width,d2=width+height*2*sqrt(3),h=height);
     cylinder(d1=width+height*2*sqrt(3),d2=width,h=height);
+	/*
     translate([0,0,-thread_pitch/2])
     nut(
         designator="M150x8",
@@ -20,4 +21,5 @@ intersection(){
         higbee_arc=0,
         fn=(150*2*PI/$fs)
     );
+	*/
 }
