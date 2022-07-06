@@ -88,16 +88,27 @@ module demo() rotate([30, 0, 0]) difference() {
     rotate([-30, 0, 0]) translate([0,0,-999/2-9]) cube(999, center=true);
 }
 
-module layout(){
-    metric_reversed = [for(i=[1:len(metric_sizes)]) metric_sizes[len(metric_sizes)-i]];
-    for(i=[0:len(metric_reversed)-1]){
-        size=metric_reversed[i];
-        sum_less = metric_reversed * [for(j=[0:len(metric_reversed)-1])  (j<i) ? 1 : 0];
+module layout(size_list=metric_sizes, w=w, h=h){
+    size_list_reversed = [for(i=[1:len(size_list)]) size_list[len(size_list)-i]];
+    difference(){
+        layout_positive(size_list_reversed=size_list_reversed, w=w, h=h);
+        #layout_negative(size_list_reversed=size_list_reversed, w=w, h=h);
+    }
+    translate([0,-h,-1]) cube([w,h,1]);
+}
+module layout_positive(size_list_reversed=size_list_reversed, w=w, h=h){
+
+}
+module layout_negative(size_list_reversed=size_list_reversed, w=w, h=h){
+    for(i=[0:len(size_list_reversed)-1]){
+        size=size_list_reversed[i];
+        sum_less = size_list_reversed * [for(j=[0:len(size_list_reversed)-1])  (j<i) ? 1 : 0];
 
         separation = 1.0 * sum_less + 1*i;
 
-        h_i = h * size/max(metric_reversed);
-        w_i = w * size/max(metric_reversed);
+        //todo
+        h_i = h * size/max(size_list_reversed);
+        w_i = w * size/max(size_list_reversed);
 
         neutral = [0,-size*hexup, -h_i];
         *translate([separation, -separation, 0])
@@ -110,7 +121,8 @@ module layout(){
             rotate([30,0,0])
             key_slot_neg(size,w_i/2);
     }
-    translate([0,-h,-1]) cube([w,h,1]);
 }
 
+
+//demo();
 layout();
