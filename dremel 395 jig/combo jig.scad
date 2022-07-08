@@ -2,7 +2,7 @@ use <threads.scad>
 
 //constants
 $fa = .01;
-$fs = $preview ? 3 : 1;
+$fs = $preview ? 3 : .5;
 inch = 25.4;
 
 //measurements
@@ -21,6 +21,7 @@ base_t = .25 * inch;
 bushing_d = 20 + 2 * 1.26;
 body_blob_h = 33;
 safe_base_h= (body_d-body_blob_h)/2;
+center_offset=2.5;
 
 //utils
 
@@ -45,39 +46,40 @@ module bushing() rotate([0, 0, 90])difference() {
 }
 
 module thingy() {
-    translate([0, pipe_d / 2 + 5, pipe_d / 2]) difference() {
+    translate([0, pipe_d / 2 + center_offset, pipe_d / 2]) difference() {
         rotate([0, 90, 0]) bushing();
-        translate([- .1, - 99 / 2, 0]) cube(99);
+        translate([- .1, - 99 / 2, 1]) cube(99);
     }
     difference() {
         union() {
-            cube([base_l, pipe_d / 2 + base_t, pipe_d / 2 + base_t]);
+            cube([base_l, pipe_d / 2 + base_t, pipe_d / 2]);
             intersection() {
                 cube([base_l, pipe_d / 2 + base_t, 2 / 3 * pipe_d + base_t]);
                 translate([stick_out, 0, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = pipe_d + 2 * base_t, h = base_l);
             }
 
         }
+        //pipe void
         translate([- .1, 0, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = pipe_d, h = 999);
-        translate([- .1, pipe_d / 2 + 5, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = bushing_d - 2, h = thread_h);
-        translate([- .1, pipe_d / 2 + 5, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = thread_d - 2, h = stick_out);
-        translate([stick_out, pipe_d / 2 + 5, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = inch, h = 4, center = true);
-        translate([stick_out, pipe_d / 2 + 5, pipe_d / 2+inch/2]) cube([4,inch,inch], center=true);
-
+        //blade gap
+        translate([- .1, pipe_d / 3, pipe_d / 2-1.2*inch/2]) cube([stick_out+3,1.2*inch,40]);
+        //avoid very thin part
+        translate([-.1,-.1,-.1]) cube([base_l+.2,3,3]);
     }
+    //bushing support
     difference(){
-        translate([0,pipe_d/2-bushing_d/2+5,0]) cube([thread_h, bushing_d, pipe_d / 2]);
-        translate([- .1, pipe_d / 2 + 5, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = bushing_d - 2, h = thread_h+.2);
-
+        translate([0,pipe_d/2-bushing_d/2+center_offset,0]) cube([thread_h, bushing_d, pipe_d / 2]);
+        translate([- .1, pipe_d / 2 + center_offset, pipe_d / 2]) rotate([0, 90, 0]) cylinder(d = bushing_d - 2, h = thread_h+.2);
     }
 }
 
 module dremel_flatter(){
     difference(){
-        translate([0,-grip_d/2,0])cube([85,grip_d, safe_base_h]);
-        translate([-.1,0,pipe_d / 2])rotate([0, 90, 0])  cylinder(d = grip_d, h = 85+.2);
+        base_w=.75*grip_d;
+        translate([0,-base_w/2,0])cube([110,base_w, safe_base_h]);
+        translate([-.1,0,pipe_d / 2])rotate([0, 90, 0])  cylinder(d = grip_d, h = 110+.2);
     }
 }
 
-//dremel_flatter();
+translate([10,pipe_d/2+center_offset,0]) rotate([0,0,180]) dremel_flatter();
 thingy();
