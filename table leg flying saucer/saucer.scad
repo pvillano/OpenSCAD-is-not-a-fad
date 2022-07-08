@@ -1,7 +1,7 @@
 //constants
 
 $fa = .01;
-$fs = $preview ? 3 : 1;
+$fs = $preview ? 3 : 3;
 todo = $preview ? 1 : undef;
 
 //measurements
@@ -16,7 +16,7 @@ rod_length = 600; //about 24 inches
 //parameters
 bearing_count = 7;
 shelf_d = 11;
-shelf_h = 1; //provides clearance for bearings
+shelf_h = .3; //provides clearance for bearings
 saucer_h=8;
 loose=.3;
 
@@ -25,8 +25,8 @@ saucer_d = rod_diameter + bearing_od;
 
 
 //generic modules
-module _mirror(xyz = [0, 0, 1], duplilcate = true) {
-    if (duplilcate) children();
+module _mirror(xyz = [0, 0, 1], duplicate = true) {
+    if (duplicate) children();
     mirror(xyz) children();
 }
 
@@ -58,14 +58,18 @@ module bearing(od = bearing_od, id = bearing_id, width = bearing_width, center =
     }
 }
 
-//module bearing_negative(){
-//    difference(){
-//        cylinder(d=bearing_od+loose,h=bearing_width+2*shelf_h, center=true);
-//        cylinder();
-//    }
-//
-//}
-module offset() {
+module bearing_negative(){
+    difference(){
+        //bearing needs space all around
+        cylinder(d=bearing_od+loose,h=bearing_width+2*shelf_h, center=true);
+        //except in center
+        cylinder(d=bearing_id, h=bearing_width+2*shelf_h+.2, center=true);
+        //and shelves
+        _mirror() _translate(bearing_width/2) cylinder(h=shelf_h+.1, d=shelf_d);
+    }
+
+}
+module offset(twist) {
     twist = atan2(thread_pitch, rod_diameter * PI);
     for (i = [0:bearing_count - 1]) {
         azimuth = i * 360 / bearing_count;
@@ -77,27 +81,30 @@ module offset() {
 }
 //bearing();
 module saucer(pos = true) {
-    //stubs for bearings
-    offset() {
-        %color("red", .7)bearing(center = true);
-        if (pos) cylinder(d = bearing_id, h = bearing_width + .2, center = true);
-        mirror([0, 0, 1]) translate([0, 0, bearing_width / 2]) cylinder(d = shelf_d, h = shelf_h+2*loose);
-    }
+    offset() %color("red", .7)bearing(center = true);
+
     difference() {
-        mirror([0, 0, 1]) cylinder(d = saucer_d + shelf_d, h = saucer_h);
-        mirror([0, 0, 1]) _translate(- .1) cylinder(d = saucer_d - shelf_d, h = saucer_h+.2);
-        offset() cylinder(d=bearing_od+loose,h=bearing_width+2*shelf_h+2*loose, center=true);
+        union(){
+            dome(d = saucer_d + shelf_d, h = 11);
+            _mirror() offset() _translate(bearing_width/2) scale([1,1,.4]) sphere(d=bearing_od);
+            r0 = (saucer_d + shelf_d+rod_diameter+2*loose)/4;
+            r1 = (saucer_d + shelf_d-rod_diameter-2*loose)/4;
+            intersection(){
+                rotate_extrude() translate([r0,0,0]) circle(r1);
+                _mirror(duplicate=false) cylinder(d=saucer_d+ shelf_d,h=999);
+            }
+        }
+        offset() bearing_negative();
     }
-
-    translate([0,0,-saucer_h]) mirror([0, 0, 1]) dome(d = saucer_d + shelf_d, h = 11);
-
-    %color("green", .7) cylinder(d = rod_diameter, h = rod_length, center = true);
+    //%color("green", .7) cylinder(d = rod_diameter, h = rod_length, center = true);
 }
 
 difference(){
     saucer();
     cylinder(d=rod_diameter+2*loose,h=rod_length, center=true);
-}
 
+    //_mirror(duplicate=false) cylinder(d=999,h=999,$fn=5);
+
+}
 
 //dome(100,20);
