@@ -2,15 +2,17 @@ $fa = .01;
 $fs = $preview ? 3 : .3;
 
 
-//imperial_size_list = [.05, 1 / 16, 5 / 64, 3 / 32, 1 / 8, 5 / 32, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8];
-//imperial_label_list = [".05", "1/16", "5/64", "3/32", "1/8", "5/32", "3/16", "7/32", "1/4", "5/16", "3/8"];
-//assert(len(imperial_size_list) == len(imperial_label_list), "Count of imperial sizes and labels must be equal.");
+
 
 //constants
 hexup = 1/sin(60);
+inch=25.4;
 
 //measurements
-metric_sizes = [2, 2.5, 3, 4, 5, 6, 8];
+metric_size_list = [2, 2.5, 3, 4, 5, 6, 8];
+imperial_size_list = [.05, 1 / 16, 5 / 64, 3 / 32, 1 / 8, 9 / 64, 3 / 16, 7 / 32, 1 / 4, 5 / 16, 3 / 8];
+imperial_label_list = [".05", "1/16", "5/64", "3/32", "1/8", "9/64", "3/16", "7/32", "1/4", "5/16", "3/8"];
+assert(len(imperial_size_list) == len(imperial_label_list), "Count of imperial sizes and labels must be equal.");
 metric_safe_space = [12, 25];
 w = 44.05;
 h = 116.8;
@@ -18,6 +20,8 @@ h = 116.8;
 //design parameters
 spacing=1.67;
 thin_wall_thickness=1.67;
+base_w = 65;
+base_h = 120;
 
 
 
@@ -68,7 +72,7 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
         rotate([0, 90, 0]) {
             rotate([0, 0, 90]) cylinder(h = w, r = circumradius_sloppy, $fn = 6);
             intersection() {
-                if($preview) cylinder(h = w, r = circumradius_sloppy, $fn=100);
+                if($preview) cylinder(h = w, r = circumradius_sloppy);
                 else cylinder(h = w, r = circumradius_sloppy);
                 translate([0, - circumradius_sloppy, 0]) cube([circumradius_sloppy, 2 * circumradius_sloppy, w]);
             }
@@ -81,13 +85,30 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
             cube([w, 2 * r_sloppy, max(10, d * 1.5)]);
     }
 }
-module main(size_list=metric_sizes, w=w, h=h){
-    size_list_reversed = [for(i=[1:len(size_list)]) size_list[len(size_list)-i]];
-    layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
-    difference(){
-        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
-        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
-    }
+module main(w=w, h=h){
+		rotate([180,0,0]) translate([0,0,-thin_wall_thickness/2]) {
+				cube([base_w, base_h, thin_wall_thickness]);
+		}
+
+
+		translate([0,0,thin_wall_thickness/2]){
+				size_list_reversed = [for(i=[1:len(metric_size_list)]) metric_size_list[len(metric_size_list)-i]];
+				//layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
+				difference(){
+						layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+						if(!$preview) layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
+				}
+		}
+		translate([0,0,-thin_wall_thickness/2])mirror([0,0,1]){
+				size_list_reversed = inch*[for(i=[1:len(imperial_size_list)]) imperial_size_list[len(imperial_size_list)-i]];
+				//layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
+				difference(){
+						layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+						if(!$preview) layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
+				}
+		}
+    
+		
 }
 
 module layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos|neg|ghost"){
