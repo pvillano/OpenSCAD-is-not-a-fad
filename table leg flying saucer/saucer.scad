@@ -1,7 +1,7 @@
 //constants
 
 $fa = .01;
-$fs = $preview ? 3 : 3;
+$fs = $preview ? 3 : 1;
 todo = $preview ? 1 : undef;
 
 //measurements
@@ -15,7 +15,7 @@ rod_length = 600; //about 24 inches
 
 //parameters
 bearing_count = 7;
-shelf_d = 11;
+shelf_d = 15;
 shelf_h = .3; //provides clearance for bearings
 saucer_h=8;
 loose=.3;
@@ -85,10 +85,24 @@ module saucer(pos = true) {
 
     difference() {
         union(){
-            dome(d = saucer_d + shelf_d, h = 11);
-            _mirror() offset() _translate(bearing_width/2) scale([1,1,.4]) sphere(d=bearing_od);
-            r0 = (saucer_d + shelf_d+rod_diameter+2*loose)/4;
-            r1 = (saucer_d + shelf_d-rod_diameter-2*loose)/4;
+
+            _translate(5) dome(d=rod_diameter+8,h=rod_diameter/2-3);
+            dome(d = saucer_d + shelf_d, h = 9);
+            //blobs
+            _mirror() offset() _translate(bearing_width/2)hull(){
+                translate([-10,0,0]) cylinder(d=.4*bearing_od,h=3);
+                scale([1,1,.4])sphere(d=.7*bearing_od);
+            }
+             rotate([0,0,360/bearing_count/2]) offset() _translate([2,0,2]) sphere(2);
+
+            //bottom
+
+            _mirror(duplicate=false) intersection(){
+                dome(d = saucer_d + shelf_d, h = 11);
+                cylinder(d=999,h=4,$fn=4);
+            }
+            r0 = (rod_diameter+2*loose)/2+4;
+            r1 = 6;
             intersection(){
                 rotate_extrude() translate([r0,0,0]) circle(r1);
                 _mirror(duplicate=false) cylinder(d=saucer_d+ shelf_d,h=999);
@@ -96,7 +110,7 @@ module saucer(pos = true) {
         }
         offset() bearing_negative();
     }
-    //%color("green", .7) cylinder(d = rod_diameter, h = rod_length, center = true);
+    %color("green", .7) cylinder(d = rod_diameter, h = rod_length, center = true);
 }
 
 difference(){
@@ -104,6 +118,7 @@ difference(){
     cylinder(d=rod_diameter+2*loose,h=rod_length, center=true);
 
     //_mirror(duplicate=false) cylinder(d=999,h=999,$fn=5);
+    cylinder(d=999,h=999,$fn=5);
 
 }
 
