@@ -16,7 +16,7 @@ w = 44.05;
 h = 116.8;
 
 //design parameters
-spacing=2;
+spacing=1.67;
 thin_wall_thickness=1.67;
 
 
@@ -83,10 +83,10 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
 }
 module main(size_list=metric_sizes, w=w, h=h){
     size_list_reversed = [for(i=[1:len(size_list)]) size_list[len(size_list)-i]];
+    layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
     difference(){
         layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
         layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
-        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
     }
 }
 
@@ -104,7 +104,7 @@ module layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos|neg|gho
 								rotate([0,0,-30])
 								difference()
 						{
-								d=size*hexup+4;
+								d=size*hexup+thin_wall_thickness*2;
 								h=lerp(metric_safe_space[1], metric_safe_space[0], i/(len(size_list_reversed)-1));
 								//h=sum_more + metric_safe_space[0];
 								cylinder(d=d,h=h);
