@@ -95,15 +95,21 @@ module main(w=w, h=h){
 				size_list_reversed = [for(i=[1:len(metric_size_list)]) metric_size_list[len(metric_size_list)-i]];
 				//layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
 				difference(){
-						layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+						union(){
+								layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+								hull() layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="hullable");
+						}
 						if(!$preview) layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
-				}
+				}				
 		}
 		translate([0,0,-thin_wall_thickness/2])mirror([0,0,1]){
 				size_list_reversed = inch*[for(i=[1:len(imperial_size_list)]) imperial_size_list[len(imperial_size_list)-i]];
 				//layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
 				difference(){
-						layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+						union(){
+								layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+								hull() layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="hullable");
+						}
 						if(!$preview) layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
 				}
 		}
@@ -118,31 +124,36 @@ module layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos|neg|gho
         sum_more = size_list_reversed * [for(j=[0:len(size_list_reversed)-1])  (j>i) ? 1 : 0];
 
         separation = sum_less + spacing * i;
+				//todo
+				slot_l=lerp(metric_safe_space[1], metric_safe_space[0], i/(len(size_list_reversed)-1));
 
         if(mode=="pos"){
-						translate([w, -separation, size*hexup/2])
-								rotate([0,-90,0])
-								rotate([0,0,-30])
+						translate([0, -separation, size*hexup/2])
+								rotate([0,90,0])
+								rotate([0,0,210])
 								difference()
 						{
 								d=size*hexup+thin_wall_thickness*2;
-								h=lerp(metric_safe_space[1], metric_safe_space[0], i/(len(size_list_reversed)-1));
 								//h=sum_more + metric_safe_space[0];
-								cylinder(d=d,h=h);
-								translate([size/2,-(d+.2)/2,-.1]) cube([d+.2, d+.2, h+.2]);
+								cylinder(d=d,h=slot_l);
+								translate([size/2,-(d+.2)/2,-.1]) cube([d+.2, d+.2, slot_l+.2]);
 						}
 			  }	else if(mode=="neg"){
 					translate([-.1, -separation, size*hexup/2])
 							rotate([30,0,0])
-							key_slot_neg(size,w+.2);
+							key_slot_neg(size,base_w+.2);
+				} else if(mode=="hullable"){
+						translate([0, -separation, 0])
+						cube([slot_l,.1,size*hexup/2]);
+				
 				} else if(mode=="ghost") {
 				
 						h_i = h * size/max(size_list_reversed);
-						w_i =lerp(w, 17, i/(len(size_list_reversed)-1));
+						w_i = 17 + sum_more + size;
 				
-						%translate([sum_less, -separation, size*hexup/2])
-							rotate([-90,0,0])
-							translate([0,-size*hexup/2, -h_i+size/2])
+						%translate([0, -separation, size*hexup/2])
+							rotate([-90,180,0])
+							translate([-w_i,-size*hexup/2, -h_i+size/2])
 							key(w_i, h_i,size,size*2);
 				}
     }
