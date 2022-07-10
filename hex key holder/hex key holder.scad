@@ -6,19 +6,26 @@ $fs = $preview ? 3 : .3;
 //imperial_label_list = [".05", "1/16", "5/64", "3/32", "1/8", "5/32", "3/16", "7/32", "1/4", "5/16", "3/8"];
 //assert(len(imperial_size_list) == len(imperial_label_list), "Count of imperial sizes and labels must be equal.");
 
+//constants
+hexup = 1/sin(60);
+
+//measurements
 metric_sizes = [2, 2.5, 3, 4, 5, 6, 8];
 metric_safe_space = [12, 25];
 w = 44.05;
 h = 116.8;
 
+//design parameters
 spacing=2;
+thin_wall_thickness=1.67;
 
-hexup = 1/sin(60);
 
+
+//generic functions and modules
 function sum(v) = [for(p=v) 1] * v;
-
 function lerp(a,b,x) = a+(b-a)*x;
 
+//specific functions
 module key(w, h, d, r_bend) {
     /*
     r_bend: bend radius is measured with inside curvature
@@ -52,6 +59,7 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
 
     //slop: how much jiggle the key should have in the locked or unlocked position
     //should be subtracted from the volume below the x plane, or lower for more strength
+		// it turns out keys are naturally a little undersized
     r_sloppy = d / 2 + slop/2;
     circumradius_sloppy = r_sloppy * 1 / sin(60);
 
@@ -64,8 +72,6 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
                 else cylinder(h = w, r = circumradius_sloppy);
                 translate([0, - circumradius_sloppy, 0]) cube([circumradius_sloppy, 2 * circumradius_sloppy, w]);
             }
-            //cylinder(h=w,r = radius_scrapey);
-
             //unlocked
             //% translate([0,0,-.1]) cylinder(h = w + .2, r = d / 2 / sin(60), $fn = 6);
             //locked
@@ -75,75 +81,51 @@ module key_slot_neg(d, w, slop=0, center=false) translate([(center ? -w/2 : 0), 
             cube([w, 2 * r_sloppy, max(10, d * 1.5)]);
     }
 }
-
-module demo() rotate([30, 0, 0]) difference() {
-    d=8;
-    h = 10;
-    l = 20;
-    w = 20;
-    r_bulge=d + 4;
-    union(){
-        rotate([-30, 0, 0]) translate([0,0,-h/2-d/2/sin(60)]) cube([l, 30, h], center=true);
-        translate([0,0,-d]) rotate([0,90,0]) rotate([0,0,90])cylinder(r=r_bulge,h=w, center=true, $fn=6);
-    }
-    key_slot_neg(d=d, w=w+.2, center=true);
-    rotate([-30, 0, 0]) translate([0,0,-999/2-9]) cube(999, center=true);
-}
-
-module layout(size_list=metric_sizes, w=w, h=h){
+module main(size_list=metric_sizes, w=w, h=h){
     size_list_reversed = [for(i=[1:len(size_list)]) size_list[len(size_list)-i]];
     difference(){
-        layout_positive(size_list_reversed=size_list_reversed, w=w, h=h);
-        layout_negative(size_list_reversed=size_list_reversed, w=w, h=h);
+        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos");
+        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="neg");
+        layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="ghost");
     }
 }
-module layout_positive(size_list_reversed=size_list_reversed, w=w, h=h){
+
+module layout(size_list_reversed=size_list_reversed, w=w, h=h, mode="pos|neg|ghost"){
     for(i=[0:len(size_list_reversed)-1]){
         size=size_list_reversed[i];
         sum_less = size_list_reversed * [for(j=[0:len(size_list_reversed)-1])  (j<i) ? 1 : 0];
         sum_more = size_list_reversed * [for(j=[0:len(size_list_reversed)-1])  (j>i) ? 1 : 0];
 
-        separation = hexup * sum_less + hexup * size;
+        separation = sum_less + spacing * i;
 
-        translate([w, -separation, size*hexup/2])
-            rotate([0,-90,0])
-            rotate([0,0,-30])
-            difference(){
-                d=size*hexup+4;
-                h=lerp(metric_safe_space[1], metric_safe_space[0], i/(len(size_list_reversed)-1));
-                cylinder(d=d,h=h);
-                translate([size/2,-(d+.2)/2,-.1]) cube([d+.2, d+.2, h+.2]);
-            }
+        if(mode=="pos"){
+						translate([w, -separation, size*hexup/2])
+								rotate([0,-90,0])
+								rotate([0,0,-30])
+								difference()
+						{
+								d=size*hexup+4;
+								h=lerp(metric_safe_space[1], metric_safe_space[0], i/(len(size_list_reversed)-1));
+								//h=sum_more + metric_safe_space[0];
+								cylinder(d=d,h=h);
+								translate([size/2,-(d+.2)/2,-.1]) cube([d+.2, d+.2, h+.2]);
+						}
+			  }	else if(mode=="neg"){
+					translate([-.1, -separation, size*hexup/2])
+							rotate([30,0,0])
+							key_slot_neg(size,w+.2);
+				} else if(mode=="ghost") {
+				
+						h_i = h * size/max(size_list_reversed);
+						w_i =lerp(w, 17, i/(len(size_list_reversed)-1));
+				
+						%translate([sum_less, -separation, size*hexup/2])
+							rotate([-90,0,0])
+							translate([0,-size*hexup/2, -h_i+size/2])
+							key(w_i, h_i,size,size*2);
+				}
     }
 
 }
-module layout_negative(size_list_reversed=size_list_reversed, w=w, h=h){
-    for(i=[0:len(size_list_reversed)-1]){
-        size=size_list_reversed[i];
-        sum_less = size_list_reversed * [for(j=[0:len(size_list_reversed)-1])  (j<i) ? 1 : 0];
 
-        separation = hexup * sum_less + hexup * size;
-
-        //todo
-        h_i = h * size/max(size_list_reversed);
-        w_i =lerp(w, 17, i/(len(size_list_reversed)-1));
-
-
-        neutral = [0,-size*hexup, -h_i];
-        %translate([separation, -separation, 0])
-            rotate([-90,0,0])
-            translate(neutral)
-            key(w_i, h_i,size,size*2);
-
-
-        translate([-.1, -separation, size*hexup/2])
-            rotate([30,0,0])
-            key_slot_neg(size,w+.2);
-    }
-}
-
-
-
-
-//demo();
-layout();
+main();
