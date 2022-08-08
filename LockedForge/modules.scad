@@ -51,7 +51,7 @@ module rectangle_holder(w, l, r = 1, x = 2, y = 1, h = 25.4 / 2, unit = 25.4) {
 //    translate([unit/2,unit/2,-.01]) cylinder(d=5.3+.2,h=unit/4);
 //}
 //flashlight
-cylinder_holder(24.0+.3,x=2,y=2);
+///cylinder_holder(24.0+.3,x=2,y=2);
 
 ////deoderant
 //pill(d=25+.3, w=65.8+.3);
@@ -64,3 +64,6 @@ cylinder_holder(24.0+.3,x=2,y=2);
 
 ////ruler
 //rectangle_holder(3/4*unit+.2, .89+.2,0,1,1);
+
+////nail clippers
+rectangle_holder(10.6+.2, 11.7+.2,0,1,1);
