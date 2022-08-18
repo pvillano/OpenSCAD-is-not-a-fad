@@ -2,7 +2,7 @@ use <LockedForge.scad>
 
 $fa = .01;
 $fs = .3;
-unit=25.4;
+unit = 25.4;
 
 module cylinder_holder(d, x = 3, y = 3, h = 25.4 / 2, unit = 25.4) {
     difference() {
@@ -36,6 +36,22 @@ module rectangle_holder(w, l, r = 1, x = 2, y = 1, h = 25.4 / 2, unit = 25.4) {
     }
 }
 
+module raised_rounded_rectangle(w, l, ir = 1, twt = 1.67, x = 2, y = 1, h0 = 25.4 / 2, h1=25.4, unit = 25.4) {
+    difference() {
+        union(){
+            cube([x * unit, y * unit, h0]);
+            translate([x * unit / 2, y * unit / 2, 2])
+								linear_extrude(h1)
+                offset(r = ir+twt)
+                square([w - 2 * ir, l - 2 * ir], center = true);
+        }
+        translate([x * unit / 2, y * unit / 2, 2])
+            linear_extrude(h1+.01)
+            offset(r = ir)
+            square([w - 2 * ir, l - 2 * ir], center = true);
+        top_holes(x, y, h = h0 - 2);
+    }
+}
 /* my uses*/
 ////cologne
 //translate([25.4 * 3 + 6, 0, 0]) cylinder_holder(64 + .3);
@@ -66,4 +82,4 @@ module rectangle_holder(w, l, r = 1, x = 2, y = 1, h = 25.4 / 2, unit = 25.4) {
 //rectangle_holder(3/4*unit+.2, .89+.2,0,1,1);
 
 ////nail clippers
-rectangle_holder(10.6+.2, 11.7+.2,0,1,1);
+raised_rounded_rectangle(w=15.6+1, l=17.8+1, ir = 1, x = 1, y = 1, h1=40);
