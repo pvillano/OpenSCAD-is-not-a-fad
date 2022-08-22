@@ -2,7 +2,7 @@ $fa=.01;
 $fs=.3;
 
 pole_d = 11.5;
-pole_w = 22.1;
+pole_w = 22.1+1;
 bolt_d = 4.7;
 bolthead_d=9.7+.3;
 plasticnut_t=5.8-4.2;
@@ -19,10 +19,13 @@ new_block_overlap=25.4;
 loose=.3;
 tight=.1;
 
+
+module cyl8(h,d,center) rotate([0,0,360/16])cylinder(h=h,d=d/cos(45/2),center=center, $fn=8);
+
 module capsule(w,d,h,center=false){
 	dx= w/2-d/2;
 	hull(){
-		translate([-dx,0,0]) cylinder(h=h,d=d, center=center);
+		translate([-dx,0,0]) cyl8(h=h,d=d, center=center);
 		translate([ dx,0,0]) cylinder(h=h,d=d, center=center);
 	}
 }
@@ -45,9 +48,10 @@ difference(){
 	//hole for pole
 	translate([0,hole_to_shear-loose,pole_d/2])
 		rotate([-90,0,0])
+		rotate([0,0,180])
 		capsule(w=pole_w+tight,d=pole_d+tight,h=99);
 	//bolt hole
-	cylinder(h=99,d=bolt_d+loose, center=true);
+	cyl8(h=99,d=bolt_d+loose, center=true);
 	//countersink
-	translate([0,0,pole_d+plasticnut_t]) cylinder(d=bolthead_d+loose,h=99);
+	translate([0,0,pole_d+plasticnut_t]) cyl8(d=bolthead_d+loose,h=99);
 }
