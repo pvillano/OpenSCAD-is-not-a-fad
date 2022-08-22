@@ -17,8 +17,8 @@ hole_to_shear=15;
 new_block_overlap=25.4;
 
 loose=.3;
-tight=.1;
-
+tight=.15;
+spacing=3;
 
 module cyl8(h,d,center) rotate([0,0,360/16])cylinder(h=h,d=d/cos(45/2),center=center, $fn=8);
 
@@ -35,14 +35,14 @@ module pole(h=99,center=false){
 
 module negative(){
 	//hole for pole
-	translate([0,hole_to_shear-loose,pole_d/2])
+	translate([0,hole_to_shear-loose])
 		rotate([-90,0,0])
 		rotate([0,0,180])
 		capsule(w=pole_w+tight,d=pole_d+tight,h=99);
 	//bolt hole
 	cyl8(h=99,d=bolt_d+loose, center=true);
 	//countersink
-	translate([0,0,pole_d+plasticnut_t]) cyl8(d=bolthead_d+loose,h=99);
+	translate([0,0,pole_d/2+plasticnut_t]) cyl8(d=bolthead_d+loose,h=99);
 }
 
 
@@ -57,35 +57,36 @@ mid_w = (pole_w+tight+new_block_w)/2;
 
 
 
-module part_a() difference(){
-	%translate([-new_block_w/2,-hole_to_end,-block_t1]) cube([new_block_w,new_block_l,new_block_h]);
-	translate([0,-hole_to_end,new_block_h/2-block_t1])
+module outer_shell() difference(){
+	%translate([-new_block_w/2,-hole_to_end,-new_block_h/2]) cube([new_block_w,new_block_l,new_block_h]);
+	
+	translate([0,-hole_to_end,0])
 		rotate([-90,0,0])
 		capsule(w=new_block_w,d=new_block_h,h=new_block_l);
 		
-	translate([0,-hole_to_end-.1,new_block_h/2-block_t1])
+	translate([0,-hole_to_end-.1,0])
 		rotate([-90,0,0])
 		capsule(w=mid_w,d=mid_h,h=mid_l+.2);
 	
 	negative();
 }
 
-module part_b() difference(){
-	%translate([-mid_w/2,-hole_to_end,-block_t1/2]) cube([mid_w,mid_l,mid_h]);
-	translate([0,-hole_to_end,new_block_h/2-block_t1])
+module inner_shell() difference(){
+	%translate([-(mid_w-tight)/2,-hole_to_end,-(mid_h-tight)/2]) cube([mid_w-tight,mid_l,mid_h-tight]);
+	translate([0,-hole_to_end,0])
 		rotate([-90,0,0])
-		capsule(w=mid_w,d=mid_h,h=mid_l);
+		capsule(w=mid_w-tight,d=mid_h-tight,h=mid_l);
 		
-	translate([0,-hole_to_end-.1,new_block_h/2-block_t1])
+	translate([0,-hole_to_end-.1,0])
 		rotate([-90,0,0])
 		capsule(w=pole_w+tight,d=pole_d+tight,h=new_block_l+.2);
 	
 	negative();
 }
 
-translate([0,-block_t1-3,hole_to_end]) rotate([90,0,0])part_a();
+translate([0,-new_block_h/2-spacing/2,hole_to_end]) rotate([90,0,0]) outer_shell();
 
-translate([0,hole_to_end+3,block_t1/2]) part_b();
+translate([0,hole_to_end+3,mid_h/2]) inner_shell();
 
 
 
