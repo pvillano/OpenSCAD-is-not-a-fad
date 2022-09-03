@@ -73,13 +73,10 @@ module outer_shell() difference(){
 
 module inner_shell() difference(){
 	%translate([-(mid_w-tight)/2,-hole_to_end,-(mid_h-tight)/2]) cube([mid_w-tight,mid_l,mid_h-tight]);
+	
 	translate([0,-hole_to_end,0])
 		rotate([-90,0,0])
 		capsule(w=mid_w-tight,d=mid_h-tight,h=mid_l);
-		
-	translate([0,-hole_to_end-.1,0])
-		rotate([-90,0,0])
-		capsule(w=pole_w+tight,d=pole_d+tight,h=new_block_l+.2);
 	
 	negative();
 }
