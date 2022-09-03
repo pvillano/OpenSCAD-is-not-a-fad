@@ -7,6 +7,9 @@
 
 //todo: bonus X000 micron (X mm) filter for big chunks
 
+$fa = .01;
+$fs = 5;
+
 //measurements
 cone_folded_arc_angle = 105;
 cone_slant_h = 120;
@@ -32,7 +35,7 @@ filter_r = filter_h * (cone_r / cone_h);
 
 filter_r_safe = min(filter_r, .5 * pour_hole_d - pour_hole_margin);
 
-//todo
+//todon't: this is good enough
 module cap(){
 	//from https://www.printables.com/model/215011-soda-bottle-funnel-cap-for-siraya-tech-resin-1-kg/files
 	// if substituting your own,
@@ -55,18 +58,29 @@ module cap(){
 }
 
 
-module decorative_web(h,r, count, angle, thickness,center=false){
-	intersection(){
-		#cylinder(h=h,r=r,center=center);
-		
-		union() for(i=[0:count-1]){
-			theta=360*i/count;
-			translate([0,0, center ? 0: h/2])
-				rotate([0,angle,theta])
-					cube([thickness, 2*h+4*r,2*h+4*r], center=true);
+module decorative_web(h,r1, r2, count, offset_count, thickness,center=false){
+	//
+	phase_shift = 360 * offset_count/count;
+	translate([0,0, center ? -h/2: 0])
+		for(i=[0:count-1])
+	{
+		theta=360*i/count;
+			
+		hull(){
+			rotate([0,0,theta]) translate([r1,0,0]) sphere(d=thickness, $fn=8);
+			rotate([0,0,theta+phase_shift]) translate([r2,0,h]) cube(thickness, center=true);
+		}
+		hull(){
+			rotate([0,0,theta]) translate([r1,0,0]) sphere(d=thickness);
+			rotate([0,0,theta-phase_shift]) translate([r2,0,h]) cube(thickness, center=true);
+		}
+		hull(){
+			rotate([0,0,theta]) translate([r1,0,0]) sphere(d=thickness);
+			rotate([0,0,theta-phase_shift]) translate([r2,0,h]) cube(thickness, center=true);
 		}
 	}
 }
+
 
 module funnel(){
 	 difference(){
@@ -74,8 +88,9 @@ module funnel(){
 			//fat part
 			cylinder(h=cone_h, r1=cone_r+twt,r2=twt);
 			//skinny part
-			translate([0,0,cone_h-filter_h])
-				cylinder(h=filter_h,r1=filter_r+twt, r2=filter_r_safe+twt);
+			//translate([0,0,cone_h-filter_h])
+				//cylinder(h=filter_h,r1=filter_r+twt, r2=filter_r_safe+twt);
+			decorative_web(h=cone_h, r2=pour_hole_d/2+twt,r1=cone_r+twt,count=10,offset_count=2,thickness=3);
 		}
 		//fat negative
 		translate([0,0,-.1]) cylinder(h=cone_h+.1, r1=cone_r,r2=0);
@@ -96,9 +111,7 @@ module main(){
 
 }
 
-funnel();
-
-//decorative_web(100,40,10,40,3);
+main();
 
 
 
