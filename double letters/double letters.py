@@ -1,4 +1,11 @@
 """
+WHY DID I STOP? I wanted to do this without supports
+some letters need to be printed on their face,
+which means their partner needs to be able to be printed on its side.
+You need at least 13 letters that can be printed on their side
+to be able to construct a list of pairs such that each letter
+appears the same number of times.
+
 what's the strategy?
 # goals
  * an equal distribution of each letter,
