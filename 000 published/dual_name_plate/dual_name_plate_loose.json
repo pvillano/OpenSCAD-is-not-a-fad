@@ -1,0 +1,36 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "base_diameter": "20",
+            "base_height": "3",
+            "font": "Arial:Black",
+            "height": "14",
+            "spacing": "15",
+            "text1": "TINA",
+            "text2": "MIKE"
+        },
+        "New set 2": {
+            "$fa": "0.01",
+            "$fs": "0.29999999999999999",
+            "base_diameter": "20",
+            "base_height": "3",
+            "font": "Arial:Black",
+            "height": "50",
+            "spacing": "50",
+            "text1": "JESUS",
+            "text2": "TRUST"
+        },
+        "New set 3": {
+            "$fa": "0.01",
+            "$fs": "0.29999999999999999",
+            "base_diameter": "20",
+            "base_height": "3",
+            "font": "Tahoma:Bold",
+            "height": "14",
+            "spacing": "15",
+            "text1": "MIKE",
+            "text2": "TATE"
+        }
+    }
+}
