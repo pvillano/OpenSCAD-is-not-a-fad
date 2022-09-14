@@ -5,8 +5,5 @@ stl/**
 *.3mf
 *.gcode
 litho/marisandad.stl
-*.xcf
 *.blend
 *.blend1
-outlet cover/texture.stl
-bfok9k/outbot.stl

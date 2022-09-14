@@ -1,0 +1,1 @@
+my first design. it did not work. I learned that 3d prints leak liquid, especially at sharp corners

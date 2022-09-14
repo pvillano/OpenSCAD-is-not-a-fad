@@ -1,1 +1,0 @@
-import("bottom half.stl");
