@@ -1,9 +1,2 @@
 .idea/**
 __pycache__/**
-
-stl/**
-*.3mf
-*.gcode
-litho/marisandad.stl
-*.blend
-*.blend1
