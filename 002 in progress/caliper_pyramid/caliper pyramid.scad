@@ -4,8 +4,6 @@ caliper_canyon_length = 15;
 caliper_pyramid_height = 49+3;
 canyon_clearance=10;
 
-ccw_bodge=.4;
-
 twt=1.89;
 slop=.1;
 h1=caliper_pyramid_height - canyon_clearance;
@@ -50,8 +48,7 @@ module insert() difference(){
   union(){
     translate([-w2/2,-w2/2,twt]) cube([w2, w2, h3-twt]);
   }
-	ccw2 = caliper_canyon_width + ccw_bodge;
-  translate([-ccw2/2,-w2/2-.1,h2]) cube([ccw2, w2+.2,caliper_canyon_height+.1]); 
+  translate([-caliper_canyon_width/2,-w2/2-.1,h2]) cube([caliper_canyon_width, w2+.2,caliper_canyon_height+.1]); 
   translate([0,0,h3+.2*w2]) rotate([90,0,0]) rotate([0,0,45]) cube(w2+.2, center=true);
 }
 
