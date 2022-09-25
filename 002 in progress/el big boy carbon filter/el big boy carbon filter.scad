@@ -98,7 +98,7 @@ module lid(){
 		}
 		translate([width/2,length/2,0])
 			cube([width,length,3*wall_thickness] -2*(media_thickness+wall_thickness)*[1,1,0], center=true);
-		translate([0,0,-h1]) body();
+		mirror([0,0,1]) linear_extrude() offset(r=.1) projection(cut=true) translate([0,0,-h1+.01]) body();
 		//screw mounting holes
 		for(i=[-1,1],j=[-1,1])
 			rotate([tilt_angle,0,0])
