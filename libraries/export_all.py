@@ -93,7 +93,7 @@ def render_parameter_set(args, parameter_file, parameter_set):
                 print("Error (OpenSCAD):", line)
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(
         description="Renders exports for all parameter sets for a given model and parameter file. "
         + "Supported formats include "
@@ -118,8 +118,11 @@ def main():
         help="Override export format from STL",
         choices=EXPORT_CHOICES,
     )
-    # todo
-    # parser.add_argument("-D", help="var=val -pre-define variables")
+    parser.add_argument(
+        "--output-dir",
+        metavar="DIR",
+        help="defaults to the same directory as the SCAD file",
+    )
     parser.add_argument(
         "--openscad-exe",
         metavar="EXE",
@@ -138,6 +141,13 @@ def main():
 
     if not args.parameter_files:
         args.parameter_files = [args.scad_file.removesuffix(".scad") + ".json"]
+
+    return args
+
+
+def main():
+
+    args = parse_args()
 
     for parameter_file in args.parameter_files:
         try:
