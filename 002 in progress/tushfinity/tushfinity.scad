@@ -1,6 +1,6 @@
 use <gridfinity_openscad/gridfinity_modules.scad>
 
-
+base_or_insert = "base"; // ["base", "insert"]
 /* [Gridfinity] */
 num_x = 4;
 num_y = 1;
@@ -10,19 +10,19 @@ hole_overhang_remedy = true;
 num_inserts = 6;
 dovetail_width = 15;
 dovetail_angle = 18;
-//slop is on the insert not the hole!
-dovetail_slop = .1;
+//Note: slop only affects insert
+dovetail_slop = .03;
 rail_height=2.5;
 column_weight = .8; // [0:.1:.9]
 //distance from top of roller to floor of container
-roller_clearance=19;
+roller_clearance=20;
 
 /* [Bearings] */
 bearing_id = 8;
 bearing_od = 22;
 bearing_width = 7;
 
-/* [hidden] */
+/* [Hidden] */
 $fa = 0.1;
 $fs=.3;
 //grid part is 4.75 high, unsafe zone is 7 high, inner height is 14, outer height is 17.75
@@ -100,6 +100,9 @@ module tushette(){
     translate([0,0,999/2+center_height]) cube(999, center=true);
   }
 }
-rotate([90,0,0])tushette();
 
-//blockus();
+if(base_or_insert=="base"){
+  blockus();
+} else{
+  rotate([90,0,0])tushette(); 
+}
