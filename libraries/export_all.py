@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os.path
 import subprocess
 import json
 import sys
@@ -74,7 +75,7 @@ def render_parameter_set(args, parameter_file, parameter_set):
         "-P",
         parameter_set,
         "-o",
-        parameter_set + "." + args.export_format,
+        os.path.join(args.output_dir, parameter_set + "." + args.export_format),
     ]
     if args.verbose:
         print(">>>", subprocess.list2cmdline(subprocess_args))
@@ -141,6 +142,9 @@ def parse_args():
 
     if not args.parameter_files:
         args.parameter_files = [args.scad_file.removesuffix(".scad") + ".json"]
+
+    if not args.output_dir:
+        args.output_dir = os.path.split(args.scad_file)[0]
 
     return args
 
