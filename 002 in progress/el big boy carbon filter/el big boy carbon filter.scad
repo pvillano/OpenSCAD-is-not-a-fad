@@ -25,6 +25,8 @@ max_overhang=20;
 module __Customizer_Limit__(){};
 
 assert(fan_width == width); // TODO
+//exactly wall thickness from the inner corner since we don't have much room
+magnet_inset=media_thickness+wall_thickness-magnet_diameter/2/sqrt(2)-wall_thickness/sqrt(2);
 
 tilt_angle = acos(length/fan_width);
 
@@ -97,8 +99,6 @@ module mesh_box(width, length,height){
 	translate([width,0,0]) mirror([1,0,0]) rotate([90,0,90]) linear_extrude(wall_thickness) mesh(length,height, hole_size, hole_spacing);
 }
 
-
-
 module lid(){
 	difference(){
     //box for carving
@@ -128,15 +128,37 @@ module lid(){
       translate([(fan_width-fan_hole_spacing)/2, (fan_width-fan_hole_spacing)/2, -screw_meat])
       mirror([0,0,1]) screw_clearance();
       
-   
-  tab_w2 = (media_thickness+wall_thickness)/2;
   for_each_corner(width, length);
     for_each_corner(width, length) 
-      translate([tab_w2,tab_w2,-safe_lid_thickness-.1])
+      translate([magnet_inset,magnet_inset,-safe_lid_thickness-.1])
       cylinder(h=magnet_height+.1,d=magnet_diameter);
 	}
 }
 
+
+module magnet_support_positive(){
+  top_width=magnet_diameter+2*wall_thickness;
+  tw2=1/sqrt(2)*top_width;
+  base_cube=[tw2,tw2, magnet_height+wall_thickness];
+  intersection(){
+    difference(){
+    union(){
+        hull(){
+          translate([0,0,-base_cube.z]) cube(base_cube);
+          translate([media_thickness,media_thickness,-base_cube.z])
+            cube(base_cube);
+          #translate([media_thickness,media_thickness,-base_cube.z-media_thickness+wall_thickness]) cube(base_cube);
+        }
+       }
+      translate([magnet_inset,magnet_inset,-magnet_height]) cylinder(h=magnet_height+.1, d=magnet_diameter+.1);
+    }
+    //defines bounds
+    mirror([0,0,1]) union(){
+      cube([width, media_thickness+wall_thickness, base_h]);
+      cube([media_thickness+wall_thickness, length, base_h]);
+    }
+  }
+}
 module body_positive(){
   //floor
   hull(){
@@ -171,9 +193,8 @@ module body(){
   difference(){
     body_positive();
     
-    tab_w2 = (media_thickness+wall_thickness)/2;
     for_each_corner(width, length) 
-      translate([tab_w2,tab_w2,base_h-magnet_height])
+      translate([magnet_inset,magnet_inset,base_h-magnet_height])
       cylinder(h=magnet_height+.1,d=magnet_diameter);
     if ($preview) translate([width/2,-1000+length/2,base_h/2]) cube(1000);
   }
@@ -187,6 +208,6 @@ module assembly(){
 	}
 }
 
-assembly();
+magnet_support_positive();
 
 	
