@@ -21,7 +21,6 @@ media_thickness=15;
 lid_thickness=7;
 //length of support for head of the screw
 screw_meat = 6;
-max_overhang=20;
 module __Customizer_Limit__(){};
 
 assert(fan_width == width); // TODO
@@ -137,23 +136,19 @@ module lid(){
 
 
 module magnet_support_positive(){
+//esentially carved out of a pyramid
   top_width=magnet_diameter+2*wall_thickness;
-  tw2=1/sqrt(2)*top_width;
-  base_cube=[tw2,tw2, magnet_height+wall_thickness];
-  intersection(){
-    difference(){
-    union(){
-        hull(){
-          translate([0,0,-base_cube.z]) cube(base_cube);
-          translate([media_thickness,media_thickness,-base_cube.z])
-            cube(base_cube);
-          #translate([media_thickness,media_thickness,-base_cube.z-media_thickness+wall_thickness]) cube(base_cube);
-        }
-       }
-      translate([magnet_inset,magnet_inset,-magnet_height]) cylinder(h=magnet_height+.1, d=magnet_diameter+.1);
+  mirror([0,0,1]) intersection(){
+    //diagonal
+    rotate([0,0,45])translate([0,-top_width/2,0]) cube([99,top_width,99]);
+    //pyramid
+     pyramid_height = media_thickness+wall_thickness;
+     translate(pyramid_height*[1,1,0]) hull(){
+      cube([2*pyramid_height,2*pyramid_height,.1], center=true);
+      translate([0,0,pyramid_height]) cube(.1);
     }
-    //defines bounds
-    mirror([0,0,1]) union(){
+    //inside outside bounds
+    union(){
       cube([width, media_thickness+wall_thickness, base_h]);
       cube([media_thickness+wall_thickness, length, base_h]);
     }
@@ -180,12 +175,7 @@ module body_positive(){
 		mesh(media_thickness*sqrt(2),base_h, hole_size, hole_spacing);
 
   //corner pyramids 
-  tab_w = media_thickness+wall_thickness;
-  slope=sqrt(2)*tan(max_overhang); // base of tri is diagonal
-  for_each_corner(width, length) hull(){
-    translate([0,0,base_h-wall_thickness]) cube([tab_w,tab_w,wall_thickness]);
-    translate([0,0,base_h-wall_thickness-media_thickness*slope]) cube(wall_thickness);
-  }
+  for_each_corner(width, length) translate([0,0,base_h]) magnet_support_positive();
     
 }
 
@@ -208,6 +198,6 @@ module assembly(){
 	}
 }
 
-magnet_support_positive();
+body();
 
 	
