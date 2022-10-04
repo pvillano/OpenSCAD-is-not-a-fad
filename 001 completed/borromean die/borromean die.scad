@@ -1,3 +1,7 @@
+$fa = .01;
+$fs = .1;
+
+
 //outside print dimension
 outside_diameter = 20;
 
@@ -15,12 +19,34 @@ o = outside_diameter/2;
 letter_size = outside_diameter  - 4*thickness - 2 * gap;
 
 
+module emboss(
+	txt="",
+	size=10,
+	font="",
+	halign="left",
+	valign="baseline",
+	spacing=1,
+	direction="ltr",
+	language="en",
+	script="latin",
+	v_bit_angle=90,
+	depth=1,
+	fs=.1
+){
+  assert(v_bit_angle > 0 && v_bit_angle < 180);
+	r0 = depth/tan(90-v_bit_angle/2);
+	steps=depth/fs;
+	for(i=[1:steps]){
+		translate([0,0,-i/steps*depth])
+			linear_extrude(depth/steps+.05) offset(r=-i/steps*r0)
+			text(txt, size=size, font=font, halign=halign, valign=valign, spacing=spacing, direction=direction, language=language, script=script);
+	}
+}
+
 module letter(l) {
     // Use linear_extrude() to make the letters 3D objects as they
     // are only 2D shapes when only using text()
-    linear_extrude(height = letter_depth*2, center=true) {
-        text(l, size = letter_size, halign = "center", valign = "center", $fn = 16);
-    }
+    emboss(l, size = letter_size, halign = "center", valign = "center", v_bit_angle=120, depth=letter_depth);
 }
 
 module ring() {

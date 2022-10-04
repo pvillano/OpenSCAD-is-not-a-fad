@@ -1,5 +1,5 @@
 $fa = .01;
-$fs = 1;
+$fs = .3;
 
 /* [measurements] */
 fan_width = 80;
@@ -191,13 +191,13 @@ module body(){
 }
 
 module assembly(){
-	body();
+	//body();
 	translate([0,0,base_h+4+safe_lid_thickness]){
 		lid();
-		%rotate([tilt_angle,0,0]) fan();
+		//%rotate([tilt_angle,0,0]) translate([0,0,4]) fan();
 	}
 }
 
-body();
+assembly();
 
 	
