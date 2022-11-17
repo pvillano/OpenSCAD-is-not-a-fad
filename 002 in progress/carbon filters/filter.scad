@@ -76,10 +76,6 @@ To find the steady state its as simple as overlapping two graphs
 
 the "resistivity of carbon" is a function f(area, thickness, flow) -> pressure drop
 
-
-
-
-
 dwell time = thickness * area / volume flow rate
 
  */
@@ -103,3 +99,23 @@ fan_front_od = 83.72;
 fan_back_id = 45.5 ;
 fan_front_id = 40;
 
+module fustrum(t=0,ep=0){
+    w1=120+2*t;
+    w2=fan_width+2*t;
+    dh=w1-w2;
+    hull(){
+        translate([-w1/2,-w1/2,-t]) cube([w1,w1, 20+t]);
+        translate([-w2/2,-w2/2,0]) cube([w2,w2,20+dh]);
+    }
+    translate([-w2/2,-w2/2,0]) cube([w2,w2,20+dh+fan_thickness+ep]);
+}
+
+t=1.28;
+w=120+2*t;
+difference(){
+    fustrum(t,0);
+    fustrum(0,.1);
+    for(i=[1:4]){
+        rotate([0,0,i*90]) mirror([0,0,1]) translate([2,2,-1]) cube(120/2-4*t);
+    }
+}
