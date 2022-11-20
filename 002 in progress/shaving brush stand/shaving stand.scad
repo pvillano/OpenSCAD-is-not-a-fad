@@ -1,7 +1,7 @@
 $fa = .01;
-$fs = 2;
+$fs = .5;
 bristles_diameter = 60;
-brush_height = 110;
+brush_height = 115;
 narrow_width = 22.0;
 torus_diameter=30;
 shank_height = 30;
@@ -61,11 +61,11 @@ module subtractor(){
     }
 }
 
+h_overall = brush_height-shank_midheight+2*stand_thickness+brush_gap;
 
 module stand1(){
     difference(){
         union(){
-            h_overall = brush_height-shank_midheight+2*stand_thickness+brush_gap;
             translate([0,0,stand_thickness]) mirror([0,0,1]) cylinder(d1=stand_width_top, d2=stand_width,h=h_overall);
             translate([-stand_width_top/2,0,stand_thickness])  mirror([0,0,1]) cube([stand_width_top,bristles_diameter/2 + brush_gap + stand_thickness,h_overall]);
         }
@@ -73,5 +73,14 @@ module stand1(){
     }
 };
 
+module stand2(){
+    w=stand_width_top-stand_thickness;
+    l=60;
+    difference(){
+        translate([-w/2,-w/2+stand_thickness,stand_thickness-h_overall]) cube([w,l,h_overall]);
+        subtractor();
+    }
+}
+
 translate([0,0,shank_midheight])mirror([0,0,1]) %brush();
-stand1();
+stand2();
