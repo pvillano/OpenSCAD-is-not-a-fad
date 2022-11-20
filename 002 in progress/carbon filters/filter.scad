@@ -110,12 +110,12 @@ module fustrum(t=0,ep=0){
     translate([-w2/2,-w2/2,0]) cube([w2,w2,20+dh+fan_thickness+ep]);
 }
 
-t=1.28;
+t=.675;
 w=120+2*t;
 difference(){
     fustrum(t,0);
     fustrum(0,.1);
     for(i=[1:4]){
-        rotate([0,0,i*90]) mirror([0,0,1]) translate([2,2,-1]) cube(120/2-4*t);
+        rotate([0,0,i*90]) mirror([0,0,1]) translate([2*t,2*t,-1]) cube(120/2-6*t);
     }
 }
