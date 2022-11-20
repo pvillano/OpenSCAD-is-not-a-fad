@@ -1,29 +1,30 @@
 $fa=.01;
-$fs=.5;
+$fs=.1;
 
+tight=.15;
+loose=.25;
 
 bearing_od = 8;
 bearing_id = 3;
 bearing_w=4;
 
 threads_length = 18;
+thread_clearance = 3;
 head_od=5.5;
 head_h=3.2;
-
+threads_length_long = 30;
 
 //nut_h = 2.3;
 nut_h=3; // some extra space because overhangs
 nut_waf=5.5;
 nut_d=nut_waf/sin(360/6);
 
-spacer_od=nut_d;
-spacer_h=nut_h;
+spacer_od=6;
+spacer_h=5.55;
 
 captive_od=55;
 captive_w=30;
 
-tight=.1;
-loose=.25;
 
 exmarg = 6;
 w=captive_w+2*(threads_length-bearing_w);
@@ -38,15 +39,6 @@ module captive(){
     rotate([90,0,0])cylinder(d=captive_od, h=captive_w, center=true);
 }
 
-module quadrate(){
-    mirror2([0,1,0])
-        for(i=[0:3]){
-        rotate([0,45+i*90])
-        translate([0,captive_w/2,captive_od/2+bearing_od/2])
-        rotate([90,0,0])
-        children();
-    }
-}
 module trangate(r=captive_od/2+bearing_od/2, w_=captive_w){
     mirror2([0,1,0])
         for(i=[0:2]){
@@ -58,10 +50,29 @@ module trangate(r=captive_od/2+bearing_od/2, w_=captive_w){
     }
 }
 
-//%trangate() cylinder(h=bearing_w, d=bearing_od, center=true);
+module under_nut(layer_height=.35){
+    //nut
+    mirror([0,0,1]) cylinder(h=99, d=nut_d+tight, $fn=6);
+    //steps
+    cube([(nut_d+tight)/2, nut_waf+tight*sqrt(3)/2, layer_height*2], center=true);
+    cube([(nut_d+tight)/2, (nut_d+tight)/2, layer_height*4], center=true);
+    rotate([0,0,180/8]) cylinder(h=layer_height*3,d=(nut_d+tight)/2/cos(180/8), $fn=8);
+    // screw
+    cylinder(h=99, d=thread_clearance+loose);
+}
+
+module bearing_ass(){
+    translate([0,0,-bearing_w]){
+        cylinder(d=bearing_od, h=bearing_w);
+        cylinder(d=spacer_od+tight, h=bearing_w+spacer_h);
+        translate([0,0,threads_length-nut_h]) mirror([0,0,1]) under_nut();
+    }
+}
+
 module main(){
-%captive();
+    %captive();
     difference(){
+        //outside triangle
         rotate([90,-90,0]) cylinder(d=captive_od*2+exmarg, h=w, $fn=3, center=true);
         //spool neg
         //rotate([90,0,0]) cylinder(h=captive_w+loose, d=captive_od+loose, center=true);
@@ -69,27 +80,21 @@ module main(){
         //bearing neg
         #trangate() bearing_ass();
 
+        //slips through check
         %hull(){
             rotate([90,0,0]) cylinder(h=captive_w+loose, d=captive_od+loose, center=true);
             translate([0,0,-100])rotate([90,0,0]) cylinder(h=captive_w+loose, d=captive_od+loose, center=true);
         }
+        //assembly screws
         #trangate( captive_od*sqrt(5/8)+exmarg/4, 0){
-            cylinder(d=bearing_id+tight,h=w/2+.2, center=true);
-            h=(30-nut_h)/2;
-            translate([0,0,h]) cylinder(h=w/2-h+.2, d=nut_d+tight, $fn=6);
+            cylinder(d=thread_clearance+loose,h=w/2+.2, center=true);
+            h=(threads_length_long-nut_h)/2;
+            translate([0,0,h]) mirror([0,0,1]) under_nut();
         }
-
+        //cut in half
         translate([0,-500,0]) cube(1000, center=true);
     }
 }
 
-module bearing_ass(){
-    translate([0,0,-bearing_w]){
-        cylinder(d=bearing_id,h=threads_length);
-        cylinder(d=bearing_od, h=bearing_w);
-        cylinder(d=spacer_od, h=bearing_w+spacer_h);
-        translate([0,0,threads_length-nut_h]) cylinder(h=nut_h+.1, d=nut_d+tight, $fn=6);
-    }
-}
 
 main();
