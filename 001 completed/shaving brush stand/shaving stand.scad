@@ -1,5 +1,5 @@
 $fa = .01;
-$fs = .5;
+$fs = 3;
 bristles_diameter = 60;
 brush_height = 115;
 narrow_width = 22.0;
