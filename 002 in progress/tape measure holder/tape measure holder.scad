@@ -2,20 +2,6 @@ $fa = .01;
 $fs = .5;
 inch = 25.4;
 
-/*
-ih=16;
-id_min=30;
-wall_thickness_min = 1.17;
-
-
-oc = (id_min + 2*wall_thickness_min) * PI;
-oc_inches = ceil(oc/inch);
-echo("oc inches", oc_inches);
-
-od = oc_inches*inch/PI;
-wall_thickness = min(wall_thickness_min, (od-id_min)/2);
-*/
-
 ih_min = 16;
 id_min = 30;
 oc_inches = 6;
@@ -23,7 +9,7 @@ min_division = 4;
 min_thickness = 2;
 tick_width = 1;
 slop = .2;
-emboss_depth = 1;
+emboss_depth = .35;
 
 
 od = oc_inches * inch / PI;
@@ -81,4 +67,4 @@ module assembly() {
 }
 
 
-bottom();
+assembly();
