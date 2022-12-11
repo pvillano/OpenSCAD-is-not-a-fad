@@ -1,0 +1,52 @@
+{
+    "property": {
+        "code": "12",
+        "currency": "$",
+        "name": "Plant-based",
+        "price": 220.0,
+        "type": "Plant-based",
+        "volume": 1000.0
+    },
+    "slice_extpara": {
+        "multi_state_paras": {
+            "bott_0": {
+                "down_speed": 2.0,
+                "height": 1.5,
+                "up_speed": 1.5
+            },
+            "bott_1": {
+                "down_speed": 4.0,
+                "height": 4.5,
+                "up_speed": 3.0
+            },
+            "normal_0": {
+                "down_speed": 2.0,
+                "height": 1.5,
+                "up_speed": 1.5
+            },
+            "normal_1": {
+                "down_speed": 2.0,
+                "height": 1.6200001239776611,
+                "up_speed": 1.5
+            }
+        },
+        "multi_state_used": 0,
+        "transition_layercount": 10,
+        "transition_type": 0
+    },
+    "slicepara": {
+        "anti_count": 1,
+        "blur_level": 0,
+        "bott_layers": 4,
+        "bott_time": 23.0,
+        "exposure_time": 3.0,
+        "gray_level": 0,
+        "off_time": 0.5,
+        "use_indivi_layerpara": 0,
+        "use_random_erode": 0,
+        "zdown_speed": 4.0,
+        "zthick": 0.05000000074505806,
+        "zup_height": 6.0,
+        "zup_speed": 3.0
+    }
+}

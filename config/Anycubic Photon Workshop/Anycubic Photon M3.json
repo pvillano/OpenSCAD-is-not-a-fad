@@ -1,0 +1,33 @@
+{
+    "key_image_format": "pw0Img",
+    "key_suffix": "pm3",
+    "max_file_version": 516,
+    "max_samples": 16,
+    "name": "Anycubic Photon M3",
+    "prev_back_color": [
+        0.0078125,
+        0.28125,
+        0.390625
+    ],
+    "prev_image_size": [
+        224,
+        168
+    ],
+    "prev_model_color": [
+        0.8046875,
+        0.8046875,
+        0.8046875
+    ],
+    "prev_supports_color": [
+        0.07421875,
+        0.92578125,
+        0.9296875
+    ],
+    "print_xsize": 163.9199981689453,
+    "print_ysize": 102.4000015258789,
+    "print_zsize": 180.0,
+    "property": 7,
+    "res_x": 4096,
+    "res_y": 2560,
+    "xy_pixel": 40.0
+}
