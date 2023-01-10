@@ -1,21 +1,28 @@
+use <emboss.scad>
+
 $fa=.01; $fs=.5;
 
 current_color = "ALL";
-font_size = 10;
-radius = 30*sqrt(2);
-r = radius;
-r2 = radius/sqrt(2);
+font_scale = .13;
+diameter_ish = 75;
+
+font_size = font_scale * diameter_ish;
+radius = diameter_ish/(1+sqrt(2));
+r = radius*sqrt(2);
+r2 = radius;
 bg = .7;
 letter_depth = r2*bg;
 thicker=2;
 thinner=1.5;
 
 module letter(l) {
-  translate([0,0,thinner-thicker])
-  linear_extrude(height = letter_depth) {
-    text(l, size = font_size, halign = "center",
-      valign = "center", $fn = 16);
-  }
+  emboss(
+    l,
+    size=font_size,
+    halign="center",
+    valign="center",
+    fs=.04
+  );
 }
 
 
@@ -52,12 +59,12 @@ module rhombic_dodecahedron(r){
   };
 }
 
-
+%sphere(d=diameter_ish, $fn=24);
 rotate([45,atan(1/sqrt(2)),0]) 
 difference(){
   rhombic_dodecahedron(r);
   rhombic_dodecahedron(r-thicker*sqrt(2));
-  rotate([atan(1/sqrt(2)),-45,-90]) cylinder(h=100,d=5, center=true);
+  rotate([atan(1/sqrt(2)),-45,-90]) cylinder(h=100,d=7, center=true);
   union(){
     rotate([0, 45,0]) translate([0,0,r2]) letter("Tony");
     rotate([0,135,0]) translate([0,0,r2]) letter("Suze");

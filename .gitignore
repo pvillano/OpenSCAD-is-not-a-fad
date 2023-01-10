@@ -1,2 +1,4 @@
 .idea/**
 __pycache__/**
+*.pm3
+*.sl1
