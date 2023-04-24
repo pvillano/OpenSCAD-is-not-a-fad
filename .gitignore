@@ -2,3 +2,4 @@
 __pycache__/**
 *.pm3
 *.sl1
+/paid/*
