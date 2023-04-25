@@ -2,11 +2,19 @@ $fs=1;
 $fa=.01;
 use <threads.scad>
 
-d_gear=100;
+d_gear=50;
 n_teeth=20;
-twt=2; //thin wall thickness
+twt=1.24; //thin wall thickness
 sliding_slop = .3; // for dovetails
 thread_pitch=4;
+
+w_dovetail = 10;
+h_dovetail = 5;
+a_dovetail=1;
+
+h_outer = 50;
+h_middle = h_outer - twt - (h_dovetail + twt);
+h_inner = h_middle - twt;
 
 /* calculated */
 rtooth=d_gear/n_teeth/4;
@@ -55,51 +63,51 @@ module dovetail(width, length, angle = 15, center = false) {
 }
 
 module outer(){
-    linear_extrude(100) difference() {
+    linear_extrude(h_outer) difference() {
         offset(r=twt) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth+1);
         cyclogearprofile(rtooth=rtooth,nteeth=n_teeth+1);
     }
     //bottom
-    mirror([0,0,1]) linear_extrude(twt)
+    linear_extrude(twt)
         offset(r=twt) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth+1);
     //dovetail
     intersection(){
-        linear_extrude(100)
+        linear_extrude(h_outer)
             offset(r=twt)
                 cyclogearprofile(rtooth=rtooth,nteeth=n_teeth+1);
-        translate([0,0,5]) mirror([0,0,1]) dovetail(10,d_gear*1.2,20, center=true);
+        translate([0,0,h_dovetail+twt]) mirror([0,0,1]) dovetail(w_dovetail,d_gear*1.2,a_dovetail, center=true);
     }
 }
 
 module middle(){
     difference(){
-        linear_extrude(100) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth);
-        ScrewThread(d_thread, pitch=thread_pitch, height = 101);
+        linear_extrude(h_middle) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth);
+        ScrewThread(d_thread, pitch=thread_pitch, height = h_middle+.1);
     }
     linear_extrude(twt) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth);
 }
 
 module inner(){
     difference(){
-        ScrewThread(d_thread-sliding_slop, pitch=thread_pitch, height = 100);
-        translate([0,0,5+twt]) cylinder(d=75, h = 101);
-        translate([0,0,5]) mirror([0,0,1]) dovetail(10 + sliding_slop,120,20, center=true);
+        ScrewThread(d_thread-sliding_slop, pitch=thread_pitch, height = h_inner);
+        translate([0,0,h_dovetail+twt]) cylinder(d=d_thread-2*thread_pitch-2*twt, h = h_inner + .1);
+        translate([0,0,h_dovetail]) mirror([0,0,1]) dovetail(w_dovetail + sliding_slop,d_thread+.1,a_dovetail, center=true);
     }
 }
 
 module wobbler(){
     intersection(){
-        cylinder(d=50,h=15);
+        cylinder(d=d_gear/2,h=2*h_dovetail+twt);
         difference(){
             union(){
-                rotate([0,0,90])translate([0,0,15]) mirror([0,0,1]) dovetail(10,50,20, center=true);
-                cylinder(d=50, h=10);
+                rotate([0,0,90])translate([0,0,2*h_dovetail+twt]) mirror([0,0,1]) dovetail(w_dovetail,d_gear/2,a_dovetail, center=true);
+                cylinder(d=d_gear/2, h=h_dovetail+twt);
             }
-            translate([0,0,5]) mirror([0,0,1]) dovetail(10 + sliding_slop,50,20, center=true);
+            translate([0,0,h_dovetail]) mirror([0,0,1]) dovetail(w_dovetail + sliding_slop,d_gear/2,a_dovetail, center=true);
         }
     }
 
 }
 
 
-outer();
+wobbler();
