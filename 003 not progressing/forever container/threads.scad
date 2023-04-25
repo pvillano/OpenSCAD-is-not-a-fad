@@ -6,6 +6,10 @@
 //
 // v2.1
 
+/*
+export ScrewThread, ScrewHole, MetricBolt, MetricNut
+*/
+
 //modified here
 screw_resolution = $fs;  // in mm
 
@@ -165,7 +169,7 @@ function NutThickness(diameter) =
       [64, 51]
     ]) :
     diameter * 51 / 64;
-  
+
 
 // This generates a closed polyhedron from an array of arrays of points,
 // with each inner array tracing out one loop outlining the polyhedron.
@@ -181,7 +185,7 @@ function NutThickness(diameter) =
 //   [j][i], [j+1][(i+1)%P], [j][(i+1)%P]
 //   Then triangles are formed in a loop with the middle point of the first
 //   and last array.
-module ClosePoints(pointarrays) {
+module ClosePoints(pointarrays, convexity) {
   function recurse_avg(arr, n=0, p=[0,0,0]) = (n>=len(arr)) ? p :
     recurse_avg(arr, n+1, p+(arr[n]-p)/(n+1));
 
@@ -223,7 +227,7 @@ module ClosePoints(pointarrays) {
   ];
   faces = concat(faces_bot, faces_loop, faces_top);
 
-  polyhedron(points=points, faces=faces);
+  polyhedron(points=points, faces=faces, convexity=convexity);
 }
 
 
@@ -314,7 +318,7 @@ module ScrewThread(outer_diam, height, pitch=0, tooth_angle=30, tolerance=0.4, t
             ht_w = h - tip_wstart,
             hf_w_t = ht_w/tip_height_w,
             hf_w = (hf_w_t < 0) ? 0 : ((hf_w_t > 1) ? 1 : hf_w_t),
-          
+
             ext_tip = (h <= tip_wstart) ? extent : (1-hf_w) * extent,
             wnormal = tooth_width(ang, h, pitch, tooth_height, ext_tip),
             w = (h <= tip_wstart) ? wnormal :
@@ -329,7 +333,7 @@ module ScrewThread(outer_diam, height, pitch=0, tooth_angle=30, tolerance=0.4, t
   ];
 
 
-  ClosePoints(pointarrays);
+  ClosePoints(pointarrays, convexity=hsteps);
 }
 
 
@@ -346,9 +350,16 @@ module AugerThread(outer_diam, inner_diam, height, pitch, tooth_angle=30, tolera
 // default.
 module ScrewHole(outer_diam, height, position=[0,0,0], rotation=[0,0,0], pitch=0, tooth_angle=30, tolerance=0.4, tooth_height=0) {
   extra_height = 0.001 * height;
-
-  difference() {
-    children();
+  if($children){
+    difference() {
+      children();
+      translate(position)
+        rotate(rotation)
+        translate([0, 0, -extra_height/2])
+        ScrewThread(1.01*outer_diam + 1.25*tolerance, height + extra_height,
+          pitch, tooth_angle, tolerance, tooth_height=tooth_height);
+    }
+  } else{
     translate(position)
       rotate(rotation)
       translate([0, 0, -extra_height/2])
@@ -371,7 +382,6 @@ module AugerHole(outer_diam, inner_diam, height, pitch, position=[0,0,0], rotati
 // starting from a position upward from the z-axis at z=0.
 module ClearanceHole(diameter, height, position=[0,0,0], rotation=[0,0,0], tolerance=0.4) {
   extra_height = 0.001 * height;
-
   difference() {
     children();
     translate(position)
