@@ -1,26 +1,25 @@
-$fs = 3;
+$fs = 1;
 $fa = .01;
 use <threads.scad>
 
 
-h_outer = 50;
+h_outer = 20;
 d_outer = 50;
+h_bottom = 4;
 
 twt = 1.24; //thin wall thickness
-sliding_slop = .3; // for dovetails
-thread_pitch = 4;
+sliding_slop = .4; // for screw
+thread_pitch = 3;
 
-w_dovetail = 10;
-h_dovetail = 5;
-a_dovetail = 1;
-
-n_teeth = 20;
+n_teeth = 9;
 
 /* calculated */
 d_middle = d_outer - 2 * twt - 2 * 2 * sin(30) * thread_pitch;
 d_gear = d_middle - d_middle / n_teeth / 4 - 2 * twt;
 r_tooth = d_gear / n_teeth / 4;
 d_small_gear_inside = d_gear - 14 * r_tooth;
+
+d_screw = d_outer - 2 * twt;
 
 // from https://github.com/mechadense/scad-lib-cyclogearprofiles/blob/master/lib-cyclogearprofiles.scad
 module cyclogearprofile(rtooth = 4, nteeth = 5, vpt = 0, verbouse = 0) {
@@ -59,25 +58,19 @@ module cyclogearprofile(rtooth = 4, nteeth = 5, vpt = 0, verbouse = 0) {
   polygon(points = pointlist, paths = [list1ToN], convexity = 6);
 }
 
-module dovetail(width, length, angle = 15, center = false) {
-  rotate([90, 0, 180])linear_extrude(length, center = center)
-  polygon([[- width / 2, 0], [width / 2, 0], [0, width / 2 * tan(90 - angle / 2)]]);
-}
-
-
 module outer() {
   difference() {
-    cylinder(d = d_outer, h = h_outer);
-    translate([0, 0, twt]) ScrewHole(outer_diam = d_outer - 2 * twt, height = h_outer, pitch = thread_pitch, tolerance =
+    cylinder(d = d_outer+2*sliding_slop, h = h_outer);
+    translate([0, 0, h_bottom]) ScrewHole(outer_diam = d_screw, height = h_outer, pitch = thread_pitch, tooth_angle=45, tolerance =
     sliding_slop);
-    translate([0, 0, - .1]) cylinder(d1 = d_small_gear_inside, d2 = d_small_gear_inside - 2 * twt, h = twt + .2);
+    translate([0, 0, - .1]) cylinder(d1 = d_small_gear_inside, d2 = d_small_gear_inside - 2 * h_bottom, h = h_bottom + .2);
   }
 }
 
 module middle() {
   difference() {
-    ScrewThread(outer_diam = d_outer - 2 * twt, height = h_outer - twt, pitch = thread_pitch, tolerance = sliding_slop);
-    translate([0, 0, twt]) linear_extrude(h_outer) cyclogearprofile(r_tooth, n_teeth);
+    ScrewThread(outer_diam = d_screw, height = h_outer - twt, pitch = thread_pitch, tooth_angle=45, tolerance = 0);
+    translate([0, 0, h_bottom]) linear_extrude(h_outer) cyclogearprofile(r_tooth, n_teeth);
   }
 }
 
@@ -87,8 +80,8 @@ module inner() {
     offset(- twt) cyclogearprofile(r_tooth, n_teeth - 1);
   }
   difference() {
-    linear_extrude(twt) cyclogearprofile(r_tooth, n_teeth - 1);
-    translate([0, 0, - .1]) cylinder(d1 = d_small_gear_inside - 2 * twt, d2 = d_small_gear_inside, h = twt + .2);
+    linear_extrude(h_bottom) cyclogearprofile(r_tooth, n_teeth - 1);
+    translate([0, 0, - .1]) cylinder(d1 = d_small_gear_inside - 2 * h_bottom, d2 = d_small_gear_inside, h = h_bottom + .2);
   }
 }
 
@@ -99,9 +92,15 @@ module mirror2(xyz) {
 
 module wobbler() {
   difference() {
-    cylinder(d2 = d_small_gear_inside - 2 * twt - sliding_slop, d1 = d_small_gear_inside - sliding_slop, h = twt);
-    translate([r_tooth, 0, - .1]) mirror2([1, 0, 0]) translate([d_small_gear_inside / 4, 0, 0]) cylinder(d = 3.7, h =
-      twt + .2);
+    cylinder(d1 = d_small_gear_inside, d2 = d_small_gear_inside - 2 * h_bottom, h = h_bottom);
+    translate([r_tooth, 0, - .1])
+      mirror2([1, 0, 0])
+      translate([d_small_gear_inside / 6, 0, 0])
+      cylinder(d = 3.2, h = h_bottom + .2); // bolts on insecurely for now
+    r_sphere=d_small_gear_inside/4;
+    translate([0,d_small_gear_inside/4,h_bottom/2-r_sphere]) sphere(r=r_sphere);
+    //give some extra room to snug
+    translate([0,0,d_small_gear_inside/2+h_bottom-sliding_slop]) cube(d_small_gear_inside, center=true);
   }
 }
 middle();
