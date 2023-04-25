@@ -82,14 +82,14 @@ module outer(){
 module middle(){
     difference(){
         linear_extrude(h_middle) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth);
-        ScrewThread(d_thread, pitch=thread_pitch, height = h_middle+.1);
+        ScrewThread(d_thread*1.01+sliding_slop, pitch=thread_pitch, height = h_middle+.1);
     }
     linear_extrude(twt) cyclogearprofile(rtooth=rtooth,nteeth=n_teeth);
 }
 
 module inner(){
     difference(){
-        ScrewThread(d_thread-sliding_slop, pitch=thread_pitch, height = h_inner);
+        ScrewThread(d_thread, pitch=thread_pitch, height = h_inner);
         translate([0,0,h_dovetail+twt]) cylinder(d=d_thread-2*thread_pitch-2*twt, h = h_inner + .1);
         translate([0,0,h_dovetail]) mirror([0,0,1]) dovetail(w_dovetail + sliding_slop,d_thread+.1,a_dovetail, center=true);
     }
