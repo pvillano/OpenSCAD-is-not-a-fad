@@ -10,8 +10,7 @@ font="Bahnschrift:style=Bold";
 font_size = 6.5;
 
 name = "Peter Villano";
-title = "";
-email =   "pvillan1@nd.edu";
+email =   "peter@saej.in";
 phone =   "(574)-855-9777";
 website = "https://saej.in";
 
