@@ -21,7 +21,7 @@ magnet_space = [
 magnet_thickness = max(5, 6);
 screw_d = 3;
 screw_h = 13;
-twt = 2;
+twt = 2.5;
 shadow_line = 1.5;
 
 module magnet_test() {
@@ -40,13 +40,13 @@ module magnet_test() {
 }
 
 module main() {
-  h = 4 * inch;
+  h = 85;
   difference() {
     hull() {
-      linear_extrude(magnet_thickness) square(magnet_space + 2 * twt * [1, 1], center = true);
+      linear_extrude(magnet_thickness) offset(twt) square(magnet_space, center = true);
       translate([0, 0, h])
-        rotate([90, 0, 0])
-          cylinder(h = magnet_space.y + 2 * twt, d = rod_diameter + 2 * twt, center = true);
+        rotate([-90, 0, 0])
+          cylinder(h = magnet_space.y/2 + twt, d = rod_diameter + 2 * twt);
     }
     //hole for rod
     translate([0, 0, h])
@@ -61,8 +61,6 @@ module main() {
       rotate(180) translate(magnet_2_holes[0] - .5 * magnet_2_dims) cylinder(d = screw_d, h = screw_h);
       rotate(180) translate(magnet_2_holes[1] - .5 * magnet_2_dims) cylinder(d = screw_d, h = screw_h);
     }
-    //weight reduction
-    translate([0, 0, h]) rotate([- 90, 0, 0]) cylinder(h = magnet_space.y, d = paper_towel_diameter * 1.2);
   }
 
   translate([0, 0, h]) rotate([- 90, 0, 0])%cylinder(h = paper_towel_height, d = paper_towel_diameter);
