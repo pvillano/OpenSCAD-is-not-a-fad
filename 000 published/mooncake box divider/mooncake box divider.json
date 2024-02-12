@@ -1,0 +1,23 @@
+{
+    "parameterSets": {
+        "200x200x40": {
+            "chamfer": "5",
+            "height": "40",
+            "thickness": "1.3",
+            "width": "200"
+        },
+        "196x196x40": {
+            "chamfer": "5",
+            "height": "40",
+            "thickness": "1.3",
+            "width": "196"
+        },
+        "205x205x40": {
+            "chamfer": "5",
+            "height": "40",
+            "thickness": "1.3",
+            "width": "205"
+        }
+    },
+    "fileFormatVersion": "1"
+}
