@@ -153,6 +153,12 @@ def main():
 
     args = parse_args()
 
+    try:
+        subprocess.run([args.openscad_exe, "--version"], capture_output=True, text=True)
+    except FileNotFoundError:
+        print_err("Error: could not find openscad")
+        exit(1)
+
     for parameter_file in args.parameter_files:
         try:
             with open(parameter_file, mode="r") as f:
@@ -165,8 +171,8 @@ def main():
 
                 for parameter_set in parameter_set_json["parameterSets"].keys():
                     render_parameter_set(args, parameter_file, parameter_set)
-        except FileNotFoundError:
-            print_err(f"Error: {parameter_file} not found. Continuing...")
+        except FileNotFoundError as e:
+            print_err(f"Error: {e.filename} not found. Continuing...")
 
 
 if __name__ == "__main__":
