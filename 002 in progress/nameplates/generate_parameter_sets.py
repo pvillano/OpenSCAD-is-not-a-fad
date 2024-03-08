@@ -8,10 +8,10 @@ parameter_sets = dict()
 with open("names.txt", 'r') as f:
     for name in f:
         name = name.strip()
-        for layer in ["White", "Gold", "Blue", "Base"]:
+        for layer in ["White", "Gold", "Blue", "Clip"]:
             parameter_sets[name + ' ' + layer] = {
                 "Fit_Width": "true",
-                "Layer": "All",
+                "Layer": layer,
                 "Name": name,
             }
 base["parameterSets"] = parameter_sets
