@@ -5,7 +5,7 @@ Layer = "All"; // ["All", "White", "Blue", "Gold", "Clip"]
 module __Customizer_Limit__ () {}
 slop=.1;
 Width = 210;
-Thickness = 1.5;
+Thickness = 1.4;
 Height= 60;
 Margin=7;
 Font = "Verdana";
@@ -14,7 +14,7 @@ Layers=2;
 
 ep=$preview ? .1 : .01;
 $fa=.01;
-$fs=$preview ? 1 : 1;
+$fs=$preview ? 3 : 1;
 
 module label(layer=1)
   translate([0,0,(layer-1)*Thickness])
