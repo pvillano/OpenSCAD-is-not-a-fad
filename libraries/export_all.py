@@ -4,6 +4,7 @@ import json
 import os.path
 import subprocess
 import sys
+from itertools import chain
 
 
 def print_err(*args, **kwargs):
@@ -25,8 +26,11 @@ def render_parameter_set(args, parameter_file, parameter_set):
     ):
         print_err(f"Warning: filename is windows reserved: {parameter_set}")
 
+    features = "fast-csg fast-csg-safer lazy-union".split()
+    features = chain(*[("--enable", feat) for feat in features])
     subprocess_args = [
         args.openscad_exe,
+        *features,
         args.scad_file,
         "-p",
         parameter_file,
