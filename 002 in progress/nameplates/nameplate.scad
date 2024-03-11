@@ -76,8 +76,8 @@ if(Layer=="Clip") color("white") {
   r1=Height/sqrt(3);
   r2=5;
   for(a=[0,120,240])rotate([0,0,a+60]){
-    translate([r1+r2+.4+Thickness,0,0]) cylinder(r=r2,h=.4);
-    #translate([r1+.3,-.4,0]) cube([r2,.8,.2]);
+    translate([r1+r2+.8+BaseThickness,0,0]) cylinder(r=r2,h=.4);
+    #translate([r1+.3,-.4,0]) cube([r2,1.2,.2]);
   }
 }
 
