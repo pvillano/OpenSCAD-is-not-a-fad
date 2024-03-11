@@ -5,25 +5,28 @@ Layer = "All"; // ["All", "White", "Blue", "Gold", "Clip"]
 module __Customizer_Limit__ () {}
 slop=.1;
 Width = 210;
-Thickness = 1.4;
-Height= 60;
+BaseThickness = 1.4;
+LabelThickness = .8;
+Height= 55;
 Margin=7;
 Font = "Verdana";
-Widening=1.5;
+Widening=1;
 Layers=2;
 
-ep=$preview ? .1 : .01;
+ep=.01;
 $fa=.01;
-$fs=$preview ? 3 : 1;
+$fs=.5;
 
 module label(layer=1)
-  translate([0,0,(layer-1)*Thickness])
-    linear_extrude(Thickness)
-      offset(r=(Layers-layer)*Widening) text(Name, size=Height-2*Margin, font=Font, halign="center", valign="center");
+  translate([0,0,(layer-1)*LabelThickness])
+    linear_extrude(LabelThickness)
+      offset(r=(Layers-layer)*Widening)
+          resize([Width-2*Margin-2*LabelThickness, 0], auto=true)
+              text(Name, size=Height-2*Margin, font=Font, halign="center", valign="center");
 
 
-module base() translate([0,0,-Thickness]){
-  linear_extrude(Thickness) square([Width, Height], center=true);
+module base() translate([0,0,-BaseThickness]){
+  linear_extrude(BaseThickness) square([Width, Height], center=true);
 }
 
 module trangle(){
@@ -39,46 +42,28 @@ module trangle(){
 module clip(){
   linear_extrude(10){
     translate([.29*Height,0,0])difference(){
-      offset(r=Thickness) square([Thickness, Height], center=true);
-      offset(r=slop) square([Thickness, Height], center=true);
-      square([4*Thickness, Height-4*Thickness], center=true);
+      offset(r=BaseThickness) square([BaseThickness, Height], center=true);
+      offset(r=slop) square([BaseThickness, Height], center=true);
+      square([4*BaseThickness, Height-4*BaseThickness], center=true);
     }
 
      difference(){
-      offset(r=Thickness) trangle();
+      offset(r=BaseThickness) trangle();
       trangle();
       translate([Height,0]) circle(r=Height,$fn=6);
     }
   }
 }
 
-module both(){
-  if(Fit_Width){
-    resize([0, 0, 2000+2*Thickness]) //scale only z
-    resize([Width-2*Margin, 0, 0], auto=true){ //scale other dimensions to match width
-      translate([0,0,-1000]) label(1);
-      translate([0,0,1000]) label(2);
-    }
-  } else{
-      translate([0,0,-1000]) label(1);
-      translate([0,0,1000]) label(2);
-  }
-}
 
 if(Layer=="All" || Layer=="White") color("white") base();
 
 if(Layer=="All" || Layer=="Blue") color([12, 35, 64]/200) {
-  intersection(){
-    translate([0,0,1000]) both();
-    cube(Width*2, center=true);
-  }
+  label(1);
 }
 
 if(Layer=="All" || Layer=="Gold") color([201, 151, 0]/255){
-  intersection(){
-    translate([0,0,-1000]) both();
-    cube(Width*2, center=true);
-  }
+  label(2);
 }
 
 if(Layer=="All") color("white") {
