@@ -17,13 +17,21 @@ ep=.01;
 $fa=.01;
 $fs=.5;
 
+logoDimensions = [70.188,63.210];
+scaleFactor = (Height - 2 * Margin)/logoDimensions[1];
+scaledLogoDimensions = logoDimensions*scaleFactor;
+
 module label(layer=1)
   translate([0,0,(layer-1)*LabelThickness])
-    linear_extrude(LabelThickness)
-      offset(r=(Layers-layer)*Widening)
-          resize([Width-2*Margin-2*LabelThickness, 0], auto=true)
-              text(Name, size=Height-2*Margin, font=Font, halign="center", valign="center");
+    linear_extrude(LabelThickness) {
+        offset(r = (Layers - layer) * Widening)
+            resize([Width - 2 * Margin - 2 * LabelThickness, 0], auto = true)
+                text(Name, size = Height - 2 * Margin, font = Font, halign = "center", valign = "center");
 
+        scale(scaleFactor)
+        translate(-logoDimensions/2)
+            import([0,"logo_gold.svg","logo_blue.svg"][layer]);
+    }
 
 module base() translate([0,0,-BaseThickness]){
   linear_extrude(BaseThickness) square([Width, Height], center=true);
