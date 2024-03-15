@@ -86,7 +86,11 @@ if (Layer == "All") color("white") {
   translate([Width / 3, 1.5 * Height]) clip();
 }
 
-if (Layer == "Clip") color("white") {
+if (Layer == "Clip")
+  color("white")
+  for(i=[-2:2])
+  translate([.75*i*Height, 0,0])
+{
   clip();
   r1 = Height / sqrt(3);
   r2 = 5;
