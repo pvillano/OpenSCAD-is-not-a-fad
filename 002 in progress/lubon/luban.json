@@ -1,0 +1,13 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "tiny": {
+            "cellHeight": "6",
+            "cellLength": "7",
+            "cellWidth": "8",
+            "hingeCellWidth": "12",
+            "pleatsCount": "7",
+            "sawKerf": "0.40000000000000002"
+        }
+    }
+}
