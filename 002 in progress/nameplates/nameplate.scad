@@ -74,11 +74,11 @@ module clip() {
 if (Layer == "All" || Layer == "White") color("white") base();
 
 if (Layer == "All" || Layer == "Blue") color([12, 35, 64] / 200) {
-  label(1);
+  label(2);
 }
 
 if (Layer == "All" || Layer == "Gold") color([201, 151, 0] / 255) {
-  label(2);
+  label(1);
 }
 
 if (Layer == "All") color("white") {
