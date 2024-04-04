@@ -1,6 +1,6 @@
 Name = "Your Name";
 Fit_Width = true;
-Layer = "All"; // ["All", "White", "Blue", "Gold", "Clip"]
+Layer = "All"; // ["All", "White", "Blue", "Gold", "Clip", "Hanger"]
 
 module __Customizer_Limit__() {}
 slop = .1;
@@ -100,3 +100,24 @@ if (Layer == "Clip")
   }
 }
 
+FeltThickness = 13; //todo
+
+if (Layer == "Hanger")
+{
+    translate([0, Height/2+BaseThickness/2, 0]) difference() {
+      offset(r = BaseThickness) square([BaseThickness, Height], center = true);
+      offset(r = slop) square([BaseThickness, Height], center = true);
+      square([4 * BaseThickness, Height - 4 * BaseThickness], center = true);
+    }
+  circleDiameter = Height + 2*FeltThickness + BaseThickness;
+  clipLength = 2*FeltThickness;
+  circleOffset = Height/2-clipLength/2;
+  translate([0,circleOffset,0]) difference(){
+    circle(circleDiameter/2+BaseThickness);
+    circle(circleDiameter/2);
+  }
+  translate([0,-FeltThickness-BaseThickness/2,0])difference(){
+    offset(r=BaseThickness)square([FeltThickness,clipLength], center = true);
+    square([FeltThickness,clipLength], center = true);
+  }
+}
