@@ -1,10 +1,9 @@
-
 // It's gonna be a phone stand
 
 unit = .6;
-width = 3.5*25.4;
+width = 3.5 * 25.4;
 height = 83 * unit;
-
+cell = 3;
 
 
 module pairwise_hull() {
@@ -44,18 +43,16 @@ module reer() {
       render() offset(delta = .3) greer();
   }
 }
-
-linear_extrude(10-.6) {
-  difference(){
-  offset(-.3)greer();
-//    offset(delta=.6) reer();
+module joint() {
+  linear_extrude(10 - .6) {
+    offset(-.3)greer();
+  }
+  color("green")translate([0, 0, 10]) linear_extrude(10 - .6) mirror([0, 1, 0]) {
+    offset(-.3)greer();
   }
 }
-translate([0,0,10]) linear_extrude(10-.6) mirror([0,1,0]){
-  difference(){
-  offset(-.3)greer();
-//    offset(delta=.6) reer();
-  }
+mirror([0, 0, 1]) {
+  joint();
+  translate([-30, -10, 0]) joint();
+  translate([-30, 10, 0]) mirror([0, 1, 0]) joint();
 }
-linear_extrude(20) reer();
-linear_extrude(20) mirror([0,1,0]) reer();
