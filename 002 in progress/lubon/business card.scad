@@ -1,24 +1,12 @@
 unit = .6;
-width = 3.5 * 25.4;
-
+width = 3.75 * 25.4;
 pleat_count = 9;
+thickness = 5;
+cell = thickness + unit;
 ideal_pleat_height = ((2 * 25.4) + unit) / pleat_count;
 pleat_height = floor(ideal_pleat_height / .6) * .6;
 height = pleat_height * pleat_count - unit;
-cell = 3.5;
 
-module pairwise_hull() {
-  if ($children > 1) {
-    for (i = [0:1:$children - 2]) {
-      hull() {
-        children(i);
-        children(i + 1);
-      }
-    }
-  } else {
-    children();
-  }
-}
 module cx(w = cell) {
   square([0.000001, w]);
 }
@@ -61,7 +49,7 @@ module joint() {
     mirror([0, 1, 0]) reer();
   }
 }
-
+module main()
 difference() {
   rotate(180)
     translate(-[-2 * cell + .3, cell + .3, 0])
@@ -86,4 +74,24 @@ difference() {
     translate([0, dh, 0]) text(strs[i], size, halign = "left", valign = "center");
   }
 
+}
+
+
+module outline() offset(delta = -15) offset(delta = 15) projection() main();
+translate([0,0,height/2]) main();
+linear_extrude(.3) intersection() {
+  difference() {
+    offset(delta=3) outline();
+    offset(delta=-.1) outline();
+  }
+  union() {
+    for (dx = [0:5.1:width])
+    translate([2-.57 * width + dx, 0]) square([1, 6 * cell], center = true);
+    for (dy = [0:cell:4 * cell])
+    translate([0, -1 * cell + dy]) square([1.4 * width, 1], center = true);
+  }
+}
+linear_extrude(.6) difference() {
+  offset(5) outline();
+  offset(1.2)outline();
 }
