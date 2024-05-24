@@ -14,7 +14,7 @@ module circular_pattern(n) {
   }
 }
 
-module bridge() {
+module bridge(bridge_angle) {
   l = 20 / cos(bridge_angle) - 10 * tan(bridge_angle);
   circular_pattern(2){
     translate([5 / cos(bridge_angle), 0]) square(10);
@@ -26,7 +26,7 @@ module bridge() {
   }
   rotate(-bridge_angle) square([10, l], center = true);
 }
-module gap() {
+module gap(motion_range, bridge_angle) {
   mirror([1, 0]) difference() {
     bridge();
     offset(delta = .3);
