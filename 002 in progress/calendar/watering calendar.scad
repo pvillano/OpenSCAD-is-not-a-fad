@@ -84,7 +84,7 @@ module month(m, xyz, first_half = true, a = 0) {
     linear_extrude(depth)
       translate([dx, 0, 0])
         //rotate([0,0,first_half? 0 : 180])
-        translate([0, -width / 4 - monthsize / 2, 0])
+        translate([0, -width / 4 - .7 * monthsize, 0])
           text(m, monthsize, "Arial:style=Bold", halign = halign, valign = "baseline");
 
 }
@@ -159,27 +159,50 @@ module main(d = 40) {
 t = 5;
 
 module holder() {
+  r1 = 10;
+  r2 = r1 - t;
+  //frame
   difference() {
     union() {
       //rotate([0, -30, 0]) translate([0,0,-.75*width]) cube([width + 2 * t, width * 2 + 2 * t, width/2 + t], center = true);
-      color("red") cube([width + 2 * t, width * 2 + 2 * t, width * 2 + 2 * t]);
+      color([.2, .2, .2]) translate([r1, r1, r1]) minkowski() {
+        cube([width, width * 2, width * 2] + (2 * t - 2 * r1) * [1, 1, 1]);
+        //        sphere(r=t);
+        rotate([0, 90, 0]) cylinder(r = r1, h = 2 * r1, center = true);
+      }
     }
     //hollow
-    color("red") translate((t - slop / 2) * [1, 1, 1])
+    color("black") translate((t - slop / 2) * [1, 1, 1])
       cube([width + slop, width * 2 + slop, width * 2 + slop]);
     //front window
-    color("red") translate([width, t, t] - (slop / 2) * [1, 1, 1])
-      cube([width + slop, 2 * width + slop, 1.5 * width]);
-    //back window
-//    translate([width, t, t] - (slop / 2) * [1, 1, 1])
-//      cube([width + slop, 2 * width + slop, 1.5 * width]);
+    color("black") translate([width, t, t] + r2 * [1, 1, 1]) minkowski() {
+      cube([width, 2 * width, 2 * width] - (2 * r2) * [1, 1, 1]);
+      rotate([0, 90, 0]) cylinder(r = r2, h = 2 * r2, center = true);
+    }
 
-    color("white") translate([2*t + width-depth, t + width, 1.5*t + 1.875 * width])
+    //back window
+    //    translate([width, t, t] - (slop / 2) * [1, 1, 1])
+    //      cube([width + slop, 2 * width + slop, 1.5 * width]);
+
+  }
+
+  //plaque
+  difference() {
+    g = 0;
+    color("red") translate([width + t, t+r2, width+t+r2+g]) intersection() {
+      minkowski() {
+        cube([t, width * 2-2*t, width-2*t-g]);
+        rotate([0, 90, 0]) cylinder(r = r2, h = .001, center = true);
+      }
+    }
+    color("red") cube([width+2*t+.4,2*width+2*t,1.4*width+t]);
+    color("white") translate([2 * t + width - depth, t + width, .5 * t + 1.875 * width])
       rotate([90, 0, 90])
         linear_extrude(7)text("We were last", 10, "Arial:style=Bold", halign = "center", valign = "center");
-    color("white") translate([2*t + width-depth, t + width, 1.5*t + 1.625 * width])
+    color("white") translate([2 * t + width - depth, t + width, .5 * t + 1.625 * width])
       rotate([90, 0, 90])
         linear_extrude(7)text("watered on...", 10, "Arial:style=Bold", halign = "center", valign = "center");
+
   }
 }
 
@@ -189,3 +212,5 @@ module preview() {
 }
 
 preview();
+
+//main();
