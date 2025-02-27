@@ -1,8 +1,12 @@
 /*
 TODO: add measurements of usb pcb
-TODO: try shaving keyswitch studs shorter
-TODO: link both halves with screws
-TODO: buy heatset insert m4 by 2.5mm?
+TODO: try shaving keyswitch studs shorter in daughter board area
+TODO: smd allowance
+
+With a friction fit on every stud,
+there should be no problem keeping the two halves together
+instead, the bottom and top should be plates, that extend slightly past the pcb
+with the walls being a separate part made of e.g. petg
 
 */
 
@@ -116,13 +120,13 @@ module base() {
     translate([-wall_thickness, -wall_thickness + pcb_ys[0], -h + plate_stackup])
       cube([pcb_xs[4] + 2 * wall_thickness, pcb_ys[2] - pcb_ys[0] + 1 * wall_thickness, h]);
 
-//    hull() {
-//      dz = 1;
-//      translate([-wall_thickness, pcb_ys[2] + wall_thickness, plate_stackup-h-usb_pcb_thicc])
-//        cube([pcb_xs[4] + 2 * wall_thickness, ep, h + usb_pcb_thicc]);
-//      translate([-wall_thickness, -wall_thickness + pcb_ys[0], plate_stackup-h+dz])
-//        cube([pcb_xs[4] + 2 * wall_thickness, ep, h-dz]);
-//    }
+    //    hull() {
+    //      dz = 1;
+    //      translate([-wall_thickness, pcb_ys[2] + wall_thickness, plate_stackup-h-usb_pcb_thicc])
+    //        cube([pcb_xs[4] + 2 * wall_thickness, ep, h + usb_pcb_thicc]);
+    //      translate([-wall_thickness, -wall_thickness + pcb_ys[0], plate_stackup-h+dz])
+    //        cube([pcb_xs[4] + 2 * wall_thickness, ep, h-dz]);
+    //    }
 
     // plate
     translate([0, pcb_ys[0], pcb_z])
@@ -133,32 +137,32 @@ module base() {
     translate([0, pcb_ys[0], 0])
       cube([pcb_xs[4], pcb_ys[1] - pcb_ys[0] + ep, plate_stackup + ep]);
     //pcb left outdent
-    translate([pcb_xs[0], pcb_ys[1],0])
-      cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + ep, pcb_z+ep]);
+    translate([pcb_xs[0], pcb_ys[1], 0])
+      cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + ep, pcb_z + ep]);
     //pcb left outdent daughter
-    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length,-pcb_type_c_height])
-      cube([key_spacing, usb_pcb_length + ep, pcb_type_c_height + pcb_z+ep]);
+    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -pcb_type_c_height])
+      cube([key_spacing, usb_pcb_length + ep, pcb_type_c_height + pcb_z + ep]);
     //pcb left outdent typec
-    translate([pcb_xs[1] - typec_width, pcb_ys[1],-pcb_type_c_height])
-      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z+ep]);
+    translate([pcb_xs[1] - typec_width, pcb_ys[1], -pcb_type_c_height])
+      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
     //pcb right outdent typec
-    translate([pcb_xs[2], pcb_ys[1],-pcb_type_c_height])
-      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z+ep]);
+    translate([pcb_xs[2], pcb_ys[1], -pcb_type_c_height])
+      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
 
 
     for (i = [0:8], j = [0:5]) {
       x = key_spacing * (.5 + i);
       y = pcb_ys[0] + key_spacing * (.5 + j);
       translate([x, y, ep]) {
-        mirror([0, 0, 1]){
+        mirror([0, 0, 1]) {
           // center stud
           cylinder(d = 5, h = stud_below_pcb_bottom + thinnest_layer + 2 * ep);
           // pin 1
           translate([pin1xy[0], pin1xy[1], 0])
-            cylinder(d1 = 3, d2=1.5, h = pin_below_pcb_bottom +  ep, $fn = 8);
+            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
           // pin 2
           translate([pin2xy[0], pin2xy[1], 0])
-            cylinder(d1 = 3, d2=1.5, h = pin_below_pcb_bottom +  ep, $fn = 8);
+            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
         }
       }
     }
@@ -169,7 +173,7 @@ module base() {
 //plate();
 difference() {
   base();
-//  cube(200, center = true);
+  //  cube(200, center = true);
 }
 //r = -pcb_ys[0];
 //translate([r, r]) linear_extrude(pcb_top_to_plate_top + midpad_thickness)
