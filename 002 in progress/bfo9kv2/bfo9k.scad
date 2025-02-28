@@ -1,12 +1,11 @@
 /*
-TODO: add measurements of usb pcb
-TODO: try shaving keyswitch studs shorter in daughter board area
 TODO: smd allowance
+TODO: reset button hole
+TODO: fasteners
+TODO: sandwitch + belt redesign
 
-With a friction fit on every stud,
-there should be no problem keeping the two halves together
-instead, the bottom and top should be plates, that extend slightly past the pcb
-with the walls being a separate part made of e.g. petg
+Design decisions:
+Tilting to make as thin as possible in the front introduces layer line terraces, so make it flat
 
 */
 
@@ -35,7 +34,7 @@ plate_thickness = 1.20;
 key_spacing = 19.05;
 key_cutout_w = 14.00;
 key_prong_w = 14.70;
-pcb_top_to_prong_bottom = 5.75;
+plate_top_to_prong_bottom = 5.75;
 pcb_top_to_pin_bottom = 2.6;
 // cherry
 //pin1xy = [-3, 2] * 1.27;
@@ -46,20 +45,21 @@ pin2xy = [4.40, 4.70];
 
 // Caliper measurements
 
-usb_pcb_thicc = 3.3;
+usb_pcb_thicc = 3.2;
 usb_pcb_width = 18.53;
-usb_pcb_length = 40; //todo
+usb_pcb_length = 34.1;
 
-pcb_type_c_height = 2; //todo
+pcb_type_c_height = 3.6;
 
 // design measurements
 midpad_thickness = .6;
 wall_thickness = 2;
-thinnest_layer = .2;
+cheat_back = 1.5;
+cheat_front = -.4;
 
 //derived dimensions
 
-stud_below_pcb_bottom = pcb_top_to_prong_bottom - pcb_top_to_plate_top;
+stud_below_pcb_bottom = plate_top_to_prong_bottom - pcb_top_to_plate_top - pcb_z;
 pin_below_pcb_bottom = pcb_top_to_pin_bottom - pcb_z;
 
 // generic functions
@@ -86,6 +86,11 @@ module plate() {
       x = key_spacing * (.5 + i);
       y = pcb_ys[0] + key_spacing * (.5 + j);
       translate([x, y, 0]) {
+        // unsafe area
+        %translate([0, 0, midpad_thickness + pcb_top_to_plate_top])
+          linear_extrude(ep)
+            square([15, 15], center = true);
+
         translate([0, 0, midpad_thickness])
           linear_extrude(pcb_top_to_plate_top + ep)
             square([key_cutout_w, key_cutout_w], center = true); // main cutout
@@ -114,19 +119,19 @@ module plate() {
 
 module base() {
   plate_stackup = pcb_top_to_plate_top + pcb_z + midpad_thickness;
-  h = plate_stackup + stud_below_pcb_bottom + thinnest_layer;
+  h = plate_stackup + stud_below_pcb_bottom + cheat_front;
+  h2 =  plate_stackup + stud_below_pcb_bottom +cheat_back +  usb_pcb_thicc;
   difference() {
 
-    translate([-wall_thickness, -wall_thickness + pcb_ys[0], -h + plate_stackup])
-      cube([pcb_xs[4] + 2 * wall_thickness, pcb_ys[2] - pcb_ys[0] + 1 * wall_thickness, h]);
+//    translate([-wall_thickness, -wall_thickness + pcb_ys[0], -h + plate_stackup])
+//      cube([pcb_xs[4] + 2 * wall_thickness, pcb_ys[2] - pcb_ys[0] + 1 * wall_thickness, h]);
 
-    //    hull() {
-    //      dz = 1;
-    //      translate([-wall_thickness, pcb_ys[2] + wall_thickness, plate_stackup-h-usb_pcb_thicc])
-    //        cube([pcb_xs[4] + 2 * wall_thickness, ep, h + usb_pcb_thicc]);
-    //      translate([-wall_thickness, -wall_thickness + pcb_ys[0], plate_stackup-h+dz])
-    //        cube([pcb_xs[4] + 2 * wall_thickness, ep, h-dz]);
-    //    }
+    hull() {
+      translate([-wall_thickness, -wall_thickness + pcb_ys[0], plate_stackup - h])
+        cube([pcb_xs[4] + 2 * wall_thickness, ep, h]);
+      translate([-wall_thickness, pcb_ys[2] - ep, plate_stackup - h2])
+        cube([pcb_xs[4] + 2 * wall_thickness, ep, h2]);
+    }
 
     // plate
     translate([0, pcb_ys[0], pcb_z])
@@ -139,9 +144,14 @@ module base() {
     //pcb left outdent
     translate([pcb_xs[0], pcb_ys[1], 0])
       cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + ep, pcb_z + ep]);
+
     //pcb left outdent daughter
-    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -pcb_type_c_height])
-      cube([key_spacing, usb_pcb_length + ep, pcb_type_c_height + pcb_z + ep]);
+    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
+      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc + stud_below_pcb_bottom + pcb_z + ep]);
+    //pcb left outdent daughter
+    %translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
+      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc]);
+
     //pcb left outdent typec
     translate([pcb_xs[1] - typec_width, pcb_ys[1], -pcb_type_c_height])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
@@ -156,7 +166,7 @@ module base() {
       translate([x, y, ep]) {
         mirror([0, 0, 1]) {
           // center stud
-          cylinder(d = 5, h = stud_below_pcb_bottom + thinnest_layer + 2 * ep);
+          cylinder(d = 5, h = stud_below_pcb_bottom + cheat_front + 2 * ep);
           // pin 1
           translate([pin1xy[0], pin1xy[1], 0])
             cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
