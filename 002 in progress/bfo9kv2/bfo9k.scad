@@ -54,11 +54,11 @@ pcb_type_c_height = 3.6;
 // design measurements
 midpad_thickness = .6;
 wall_thickness = 2;
-cheat_back = 1.5;
-cheat_front = -.4;
+thinnest_layer = .2;
 
 //derived dimensions
 
+typec_width = pcb_xs[3] - pcb_xs[2];
 stud_below_pcb_bottom = plate_top_to_prong_bottom - pcb_top_to_plate_top - pcb_z;
 pin_below_pcb_bottom = pcb_top_to_pin_bottom - pcb_z;
 
@@ -74,22 +74,18 @@ module mirror2(xyz) {
 
 module plate() {
   translate([0, 0, pcb_z])difference() {
-    translate([0, pcb_ys[0], 0]) {
+    translate([0, pcb_ys[0], 0])
       cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], pcb_top_to_plate_top + midpad_thickness]);
-      //      r = 3.05/2;//-2*pcb_ys[0];
-      //      translate([r, r]) linear_extrude(pcb_top_to_plate_top + midpad_thickness)
-      //        offset(r = r, $fn=16)
-      //          square([pcb_xs[4] - 2*r, pcb_ys[2] - pcb_ys[0]-2*r]);
-    }
+
 
     for (i = [0:8], j = [0:5]) {
       x = key_spacing * (.5 + i);
       y = pcb_ys[0] + key_spacing * (.5 + j);
       translate([x, y, 0]) {
-        // unsafe area
-        %translate([0, 0, midpad_thickness + pcb_top_to_plate_top])
-          linear_extrude(ep)
-            square([15, 15], center = true);
+//         //unsafe area
+//        %translate([0, 0, midpad_thickness + pcb_top_to_plate_top])
+//          linear_extrude(ep)
+//            square([15, 15], center = true);
 
         translate([0, 0, midpad_thickness])
           linear_extrude(pcb_top_to_plate_top + ep)
@@ -110,8 +106,8 @@ module plate() {
       x = xy[0] * key_spacing;
       y = xy[1] * key_spacing + pcb_ys[0];
       translate([x, y, 0]) {
-        translate([0, 0, -ep]) cylinder(d = stud_diameter, h = pcb_top_to_plate_top + midpad_thickness + 2 * ep);
-        //        translate([0, 0, pcb_top_to_plate_top + midpad_thickness - 1.7])cylinder(h = 1.7 + ep, d1 = 4, d2 = 6 + ep);
+        translate([0, 0, -ep]) cylinder(d = 3, h = pcb_top_to_plate_top + midpad_thickness + 2 * ep);
+        translate([0, 0, pcb_top_to_plate_top + midpad_thickness - 1.7])cylinder(h = 1.7 + ep, d1 = 3, d2 = 6 + ep);
       }
     }
   }
@@ -119,42 +115,37 @@ module plate() {
 
 module base() {
   plate_stackup = pcb_top_to_plate_top + pcb_z + midpad_thickness;
-  h = plate_stackup + stud_below_pcb_bottom + cheat_front;
-  h2 =  plate_stackup + stud_below_pcb_bottom +cheat_back +  usb_pcb_thicc;
+  h = plate_stackup + stud_below_pcb_bottom + thinnest_layer;
+  h2 =  plate_stackup + stud_below_pcb_bottom + thinnest_layer +  usb_pcb_thicc;
   difference() {
 
-//    translate([-wall_thickness, -wall_thickness + pcb_ys[0], -h + plate_stackup])
-//      cube([pcb_xs[4] + 2 * wall_thickness, pcb_ys[2] - pcb_ys[0] + 1 * wall_thickness, h]);
-
-    hull() {
-      translate([-wall_thickness, -wall_thickness + pcb_ys[0], plate_stackup - h])
-        cube([pcb_xs[4] + 2 * wall_thickness, ep, h]);
-      translate([-wall_thickness, pcb_ys[2] - ep, plate_stackup - h2])
-        cube([pcb_xs[4] + 2 * wall_thickness, ep, h2]);
-    }
+    translate([0, 0 + pcb_ys[0], -h2 + plate_stackup])
+      cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], h2]);
 
     // plate
-    translate([0, pcb_ys[0], pcb_z])
-      cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0] + ep, plate_stackup + ep]);
+    translate([0-ep, pcb_ys[0]-ep, pcb_z])
+      cube([pcb_xs[4]+2*ep, pcb_ys[2] - pcb_ys[0]+2*ep, plate_stackup + ep]);
 
-    typec_width = pcb_xs[3] - pcb_xs[2];
     //pcb
-    translate([0, pcb_ys[0], 0])
-      cube([pcb_xs[4], pcb_ys[1] - pcb_ys[0] + ep, plate_stackup + ep]);
+    translate([0-ep, 0, 0])
+      cube([pcb_xs[4]+2*ep, pcb_ys[1], pcb_z + ep]);
     //pcb left outdent
-    translate([pcb_xs[0], pcb_ys[1], 0])
-      cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + ep, pcb_z + ep]);
+    translate([pcb_xs[0], pcb_ys[1]-ep, 0])
+      cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + 2*ep, pcb_z + ep]);
 
     //pcb left outdent daughter
     translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
       cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc + stud_below_pcb_bottom + pcb_z + ep]);
     //pcb left outdent daughter
-    %translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
-      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc]);
+//    %translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
+//      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc]);
 
     //pcb left outdent typec
     translate([pcb_xs[1] - typec_width, pcb_ys[1], -pcb_type_c_height])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
+    //pcb right outdent
+    translate([pcb_xs[2], pcb_ys[1]-ep, 0])
+      cube([typec_width, pcb_ys[2] - pcb_ys[1] + 2*ep, pcb_z + ep]);
     //pcb right outdent typec
     translate([pcb_xs[2], pcb_ys[1], -pcb_type_c_height])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
@@ -166,7 +157,7 @@ module base() {
       translate([x, y, ep]) {
         mirror([0, 0, 1]) {
           // center stud
-          cylinder(d = 5, h = stud_below_pcb_bottom + cheat_front + 2 * ep);
+          cylinder(d = 5, h = stud_below_pcb_bottom + thinnest_layer + 2 * ep);
           // pin 1
           translate([pin1xy[0], pin1xy[1], 0])
             cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
@@ -174,6 +165,15 @@ module base() {
           translate([pin2xy[0], pin2xy[1], 0])
             cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
         }
+      }
+    }
+
+    for (xy = stud_locations) {
+      x = xy[0] * key_spacing;
+      y = xy[1] * key_spacing + pcb_ys[0];
+      translate([x, y, 0]) {
+        translate([0,0,ep]) mirror([0,0,1]) cylinder(d = 3, h = h2 - plate_stackup + 2 * ep);
+        translate([0, 0,-( h2 - plate_stackup) - ep]) cylinder(h = 4 + ep, d = 4.2);
       }
     }
   }
