@@ -1,7 +1,5 @@
 /*
-TODO: smd allowance
 TODO: reset button hole
-TODO: fasteners
 TODO: sandwitch + belt redesign
 
 Design decisions:
@@ -150,7 +148,7 @@ module base() {
     translate([pcb_xs[2], pcb_ys[1], -pcb_type_c_height])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
 
-
+    // per-key features
     for (i = [0:8], j = [0:5]) {
       x = key_spacing * (.5 + i);
       y = pcb_ys[0] + key_spacing * (.5 + j);
@@ -168,6 +166,18 @@ module base() {
       }
     }
 
+    intersection(){
+      for(i=[0:8]){
+        translate([i*key_spacing,pcb_ys[1]/2,0])
+          cube([5,pcb_ys[1],2],center=true);
+      }
+      for(j=[0:5]){
+        translate([0,(j+.5)*key_spacing+pcb_ys[0]-5/2,-1])
+          cube([pcb_xs[4],5,2]);
+      }
+    }
+
+    // holes for m3 heatset inserts
     for (xy = stud_locations) {
       x = xy[0] * key_spacing;
       y = xy[1] * key_spacing + pcb_ys[0];
@@ -176,6 +186,12 @@ module base() {
         translate([0, 0,-( h2 - plate_stackup) - ep]) cylinder(h = 4 + ep, d = 4.2);
       }
     }
+
+//    // bfo-9000 cutout (optional)
+//    translate([4.5*key_spacing,55.7,0]){
+//      cube([39,7,100], center=true);
+//    }
+
   }
 }
 
