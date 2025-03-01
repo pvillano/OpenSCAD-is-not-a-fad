@@ -1,5 +1,4 @@
 /*
-TODO: reset button hole
 TODO: sandwitch + belt redesign
 
 Design decisions:
@@ -9,7 +8,7 @@ Tilting to make as thin as possible in the front introduces layer line terraces,
 
 
 $fa = .01;
-$fs = 1;
+$fs = .5;
 ep = $preview ? .1 : .01;
 
 // CAD measurements
@@ -17,6 +16,9 @@ ep = $preview ? .1 : .01;
 pcb_xs = [19.050, 61.317, 109.240, 119.360, 171.450]; // 171.450=9*19.05
 pcb_ys = [-2.381, 111.919, 116.979]; // pcb is short on the bottom by 7.025-4.644 = 2.381mm
 pcb_z = 1.50;
+
+reset_x = 42.3;
+reset_y = 113.7;
 
 stud_diameter = 4.0;
 stud_locations = [
@@ -94,9 +96,9 @@ module plate() {
         translate([0, 0, -ep])
           cylinder(d = 5, h = midpad_thickness + 2 * ep); // center stud
         translate([pin1xy[0], pin1xy[1], -ep])
-          cylinder(d = 1.5, h = midpad_thickness + 2 * ep, $fn = 8); // pin 1
+          cylinder(d = 1.5, h = midpad_thickness + 2 * ep); // pin 1
         translate([pin2xy[0], pin2xy[1], -ep])
-          cylinder(d = 1.5, h = midpad_thickness + 2 * ep, $fn = 8); // pin 2
+          cylinder(d = 1.5, h = midpad_thickness + 2 * ep); // pin 2
       }
     }
 
@@ -158,14 +160,25 @@ module base() {
           cylinder(d = 5, h = stud_below_pcb_bottom + thinnest_layer + 2 * ep);
           // pin 1
           translate([pin1xy[0], pin1xy[1], 0])
-            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
+            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep);
           // pin 2
           translate([pin2xy[0], pin2xy[1], 0])
-            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep, $fn = 8);
+            cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep);
         }
       }
     }
 
+    //reset button hole
+    translate([reset_x, reset_y, 0]) mirror([0,0,1]){
+      reset_diameter = 6.6;
+      cube([9,reset_diameter,2], center=true);
+      linear_extrude(10) intersection(){
+        square(reset_diameter,center=true);
+        rotate(45) square(reset_diameter+.7,center=true);
+      }
+    }
+
+    // smd diode cutouts
     intersection(){
       for(i=[0:8]){
         translate([i*key_spacing,pcb_ys[1]/2,0])
