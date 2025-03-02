@@ -1,5 +1,5 @@
 /*
-TODO: sandwitch + belt redesign
+TODO: belt redesign
 
 Design decisions:
 Tilting to make as thin as possible in the front introduces layer line terraces, so make it flat
@@ -50,6 +50,7 @@ usb_pcb_width = 18.53;
 usb_pcb_length = 34.1;
 
 pcb_type_c_height = 3.6;
+pcb_type_c_y = 8;
 
 diode_x = 5;
 diode_y = 5;
@@ -119,8 +120,7 @@ module plate() {
 
 module base() {
   plate_stackup = pcb_top_to_plate_top + pcb_z + midpad_thickness;
-  h = plate_stackup + stud_below_pcb_bottom + thinnest_layer;
-  h2 = plate_stackup + stud_below_pcb_bottom + thinnest_layer + usb_pcb_thicc;
+  h2 = plate_stackup + thinnest_layer + max(usb_pcb_thicc, pcb_type_c_height);
   difference() {
 
     translate([0, 0 + pcb_ys[0], -h2 + plate_stackup])
@@ -138,21 +138,21 @@ module base() {
       cube([pcb_xs[1] - pcb_xs[0], pcb_ys[2] - pcb_ys[1] + 2 * ep, pcb_z + ep]);
 
     //pcb left outdent daughter
-    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
-      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc + stud_below_pcb_bottom + pcb_z + ep]);
+    translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -usb_pcb_thicc])
+      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc + pcb_z + ep]);
     //pcb left outdent daughter
     //    %translate([pcb_xs[0], pcb_ys[2] - usb_pcb_length, -stud_below_pcb_bottom - usb_pcb_thicc])
     //      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc]);
 
     //pcb left outdent typec
-    translate([pcb_xs[1] - typec_width, pcb_ys[1], -pcb_type_c_height])
-      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
+    #translate([pcb_xs[1] - typec_width, pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
+      cube([typec_width, pcb_type_c_y+ ep, pcb_type_c_height + pcb_z + ep]);
     //pcb right outdent
     translate([pcb_xs[2], pcb_ys[1] - ep, 0])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + 2 * ep, pcb_z + ep]);
     //pcb right outdent typec
-    translate([pcb_xs[2], pcb_ys[1], -pcb_type_c_height])
-      cube([typec_width, pcb_ys[2] - pcb_ys[1] + ep, pcb_type_c_height + pcb_z + ep]);
+    #translate([pcb_xs[2], pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
+      cube([typec_width, pcb_type_c_y+ ep, pcb_type_c_height + pcb_z + ep]);
 
     // per-key features
     for (i = [0:8], j = [0:5]) {
