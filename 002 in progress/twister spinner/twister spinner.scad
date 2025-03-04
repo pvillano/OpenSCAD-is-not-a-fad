@@ -12,14 +12,14 @@ union() {
 
 module 2d(hole = true) difference() {
   union() {
-    circle(27);
+    circle(d=29);
     hull() {
-      circle(14);
-      translate([-40, 0, 0]) circle(14);
+      translate([-40, 0, 0]) circle(d=20);
+      circle(d=20);
       translate([95, 0, 0]) circle(d = 4);
     }
   }
-  if (hole) circle(22.1);
+  if (hole) circle(d=22.1);
 }
 
 module 2ad() {
