@@ -49,7 +49,7 @@ usb_pcb_thicc = 3.2;
 usb_pcb_width = 18.53;
 usb_pcb_length = 34.1;
 
-pcb_type_c_height = 3.6;
+pcb_type_c_height = 3.3;
 pcb_type_c_y = 8;
 
 diode_x = 5;
@@ -60,12 +60,20 @@ diode_z = 1;
 midpad_thickness = .6;
 wall_thickness = 2;
 thinnest_layer = .2;
+slant_dz = .4;
+
+xy_hole_slop = .5;
 
 //derived dimensions
 
 typec_width = pcb_xs[3] - pcb_xs[2];
 stud_below_pcb_bottom = plate_top_to_prong_bottom - pcb_top_to_plate_top - pcb_z;
 pin_below_pcb_bottom = pcb_top_to_pin_bottom - pcb_z;
+
+slant_hyp = key_spacing;
+slant_opp = slant_dz;
+slant_adj = sqrt(slant_hyp^2 - slant_opp^2);
+slant_angle = asin(slant_opp / slant_hyp);
 
 // generic functions
 
@@ -78,7 +86,7 @@ module mirror2(xyz) {
 //design
 
 module plate() {
-  translate([0, 0, pcb_z])difference() {
+  translate([0, 0, pcb_z]) difference() {
     translate([0, pcb_ys[0], 0])
       cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], pcb_top_to_plate_top + midpad_thickness]);
 
@@ -99,11 +107,11 @@ module plate() {
           linear_extrude(pcb_top_to_plate_top - plate_thickness)
             square([key_prong_w, key_cutout_w], center = true); // prong cutout
         translate([0, 0, -ep])
-          cylinder(d = 5, h = midpad_thickness + 2 * ep); // center stud
+          cylinder(d = 5 + xy_hole_slop, h = midpad_thickness + 2 * ep); // center stud
         translate([pin1xy[0], pin1xy[1], -ep])
-          cylinder(d = 1.5, h = midpad_thickness + 2 * ep); // pin 1
+          cylinder(d = 1.5 + xy_hole_slop, h = midpad_thickness + 2 * ep); // pin 1
         translate([pin2xy[0], pin2xy[1], -ep])
-          cylinder(d = 1.5, h = midpad_thickness + 2 * ep); // pin 2
+          cylinder(d = 1.5 + xy_hole_slop, h = midpad_thickness + 2 * ep); // pin 2
       }
     }
 
@@ -111,8 +119,8 @@ module plate() {
       x = xy[0] * key_spacing;
       y = xy[1] * key_spacing + pcb_ys[0];
       translate([x, y, 0]) {
-        translate([0, 0, -ep]) cylinder(d = 3, h = pcb_top_to_plate_top + midpad_thickness + 2 * ep);
-        translate([0, 0, pcb_top_to_plate_top + midpad_thickness - 1.7])cylinder(h = 1.7 + ep, d1 = 3, d2 = 6 + ep);
+        translate([0, 0, -ep]) cylinder(d = 3 + xy_hole_slop, h = pcb_top_to_plate_top + midpad_thickness + 2 * ep);
+        translate([0, 0, pcb_top_to_plate_top + midpad_thickness - 1.7])cylinder(h = 1.7 + ep, d1 = 3 + xy_hole_slop, d2 = 6 + xy_hole_slop + ep);
       }
     }
   }
@@ -122,13 +130,21 @@ module base() {
   plate_stackup = pcb_top_to_plate_top + pcb_z + midpad_thickness;
   h2 = plate_stackup + thinnest_layer + max(usb_pcb_thicc, pcb_type_c_height);
   difference() {
-
-    translate([0, 0 + pcb_ys[0], -h2 + plate_stackup])
-      cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], h2]);
+    //    translate([0, 0 + pcb_ys[0], -h2 + plate_stackup])
+    //      cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], h2]);
+    hull() {
+      #translate([0, pcb_ys[2] - usb_pcb_length, 0])
+        rotate([-slant_angle, 0, 0])
+          translate([0, usb_pcb_length - pcb_ys[2], 0])
+            translate([0, 0 + pcb_ys[0], -h2 + plate_stackup])
+              cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], ep]);
+      translate([0, 0 + pcb_ys[0], -ep + plate_stackup])
+        cube([pcb_xs[4], pcb_ys[2] - pcb_ys[0], ep]);
+    }
 
     // plate
     translate([0 - ep, pcb_ys[0] - ep, pcb_z])
-      cube([pcb_xs[4] + 2 * ep, pcb_ys[2] - pcb_ys[0] + 2 * ep, plate_stackup + ep]);
+      cube([pcb_xs[4] + 2 * ep, pcb_ys[2] - pcb_ys[0] + 2 * ep+9.999, plate_stackup + ep+9.999]);
 
     //pcb
     translate([0 - ep, 0, 0])
@@ -146,13 +162,13 @@ module base() {
 
     //pcb left outdent typec
     #translate([pcb_xs[1] - typec_width, pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
-      cube([typec_width, pcb_type_c_y+ ep, pcb_type_c_height + pcb_z + ep]);
+      cube([typec_width, pcb_type_c_y + ep, pcb_type_c_height + pcb_z + ep]);
     //pcb right outdent
     translate([pcb_xs[2], pcb_ys[1] - ep, 0])
       cube([typec_width, pcb_ys[2] - pcb_ys[1] + 2 * ep, pcb_z + ep]);
     //pcb right outdent typec
     #translate([pcb_xs[2], pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
-      cube([typec_width, pcb_type_c_y+ ep, pcb_type_c_height + pcb_z + ep]);
+      cube([typec_width, pcb_type_c_y + ep, pcb_type_c_height + pcb_z + ep]);
 
     // per-key features
     for (i = [0:8], j = [0:5]) {
@@ -162,6 +178,7 @@ module base() {
         mirror([0, 0, 1]) {
           // center stud
           cylinder(d = 5, h = stud_below_pcb_bottom + thinnest_layer + 2 * ep);
+          %cylinder(d = 5, h = stud_below_pcb_bottom + 2 * ep);
           // pin 1
           translate([pin1xy[0], pin1xy[1], 0])
             cylinder(d1 = 3, d2 = 1.5, h = pin_below_pcb_bottom + ep);
@@ -199,25 +216,25 @@ module base() {
       x = xy[0] * key_spacing;
       y = xy[1] * key_spacing + pcb_ys[0];
       translate([x, y, 0]) {
-        translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 3, h = h2 - plate_stackup + 2 * ep);
+        translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 3 + xy_hole_slop, h = h2 - plate_stackup + 2 * ep);
         translate([0, 0, -(h2 - plate_stackup) - ep]) cylinder(h = 4 + ep, d = 4.2);
       }
     }
 
-    // holes for magnets
-    translate([pcb_xs[4] / 2, 0, 0])mirror2([1, 0, 0])translate([-pcb_xs[4] / 2, 0, 0]) for (j = [1:6]) {
-      h3 = h2 - plate_stackup ;
-      d = h3 - 2 * thinnest_layer;
-      y = j * key_spacing + pcb_ys[0];
-      translate([-ep, y, (plate_stackup - h2) / 2])
-        rotate([0, 90, 0]) {
-
-          rotate([0, 0, 360 / 16])cylinder(h = d / 2 + ep, d = d / cos(360 / 16), $fn = 8);
-          translate([0, 0, d / 2 + ep]) rotate([0, 0, 360 / 16]) sphere(d = d / cos(360 / 11.45), $fn = 8);
-          //#cylinder(h = d + ep, d = d);
-        }
-      echo(d);
-    }
+//    // holes for magnets
+//    translate([pcb_xs[4] / 2, 0, 0])mirror2([1, 0, 0])translate([-pcb_xs[4] / 2, 0, 0]) for (j = [1:6]) {
+//      h3 = h2 - plate_stackup ;
+//      d = h3 - 2 * thinnest_layer;
+//      y = j * key_spacing + pcb_ys[0];
+//      translate([-ep, y, (plate_stackup - h2) / 2])
+//        rotate([0, 90, 0]) {
+//
+//          rotate([0, 0, 360 / 16])cylinder(h = d / 2 + ep, d = d / cos(360 / 16), $fn = 8);
+//          translate([0, 0, d / 2 + ep]) rotate([0, 0, 360 / 16]) sphere(d = d / cos(360 / 11.45), $fn = 8);
+//          //#cylinder(h = d + ep, d = d);
+//        }
+//      echo(d);
+//    }
 
     //    // bfo-9000 cutout (optional)
     //    translate([4.5*key_spacing,55.7,0]){
