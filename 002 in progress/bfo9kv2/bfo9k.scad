@@ -171,13 +171,13 @@ module base() {
       //      cube([key_spacing, usb_pcb_length + ep, usb_pcb_thicc]);
 
       //pcb left outdent typec
-      #translate([pcb_xs[1] - typec_width, pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
+      translate([pcb_xs[1] - typec_width, pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
         cube([typec_width, pcb_type_c_y + tiltCompensation, pcb_type_c_height + pcb_z + ep]);
       //pcb right outdent
       translate([pcb_xs[2], pcb_ys[1] - ep, 0])
         cube([typec_width, pcb_ys[2] - pcb_ys[1] + tiltCompensation, pcb_z + ep]);
       //pcb right outdent typec
-      #translate([pcb_xs[2], pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
+      translate([pcb_xs[2], pcb_ys[2] - pcb_type_c_y, -pcb_type_c_height])
         cube([typec_width, pcb_type_c_y + tiltCompensation, pcb_type_c_height + pcb_z + ep]);
 
       // per-key features
@@ -203,7 +203,7 @@ module base() {
       translate([reset_x, reset_y, 0]) mirror([0, 0, 1]) {
         reset_diameter = 6.6;
         translate([-4.5, -reset_diameter / 2, -1]) cube([9, reset_diameter + tiltCompensation, 2]);
-        #translate([-4 / 2, 0, -1]) cube([4, reset_diameter + tiltCompensation, 10]);
+        translate([-4 / 2, 0, -1]) cube([4, reset_diameter + tiltCompensation, 10]);
         linear_extrude(10) intersection() {
           square(reset_diameter, center = true);
           rotate(45) square(reset_diameter + .7, center = true);
@@ -212,11 +212,11 @@ module base() {
 
       // smd diode cutouts
       intersection() {
-        for (i = [0:9]) {
+        union() for (i = [0:9]) {
           translate([i * key_spacing, pcb_ys[1] / 2, 0])
             cube([diode_pair_x, pcb_ys[1], diode_pair_z * 2], center = true);
         }
-        for (j = [0:5]) {
+        union() for (j = [0:5]) {
           translate([-ep, (j + .5) * key_spacing + pcb_ys[0] - diode_pair_y / 2, -diode_pair_z])
             cube([pcb_xs[4] + 2 * ep, diode_pair_y, diode_pair_z * 2]);
         }
@@ -227,8 +227,8 @@ module base() {
         x = xy[0] * key_spacing;
         y = xy[1] * key_spacing + pcb_ys[0];
         translate([x, y, 0]) {
-          //          #translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 3 + xy_hole_slop, h = under_pcb + 2 * ep);
-          #translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 4.2, h = 9 + ep);
+          //          translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 3 + xy_hole_slop, h = under_pcb + 2 * ep);
+          //          translate([0, 0, ep]) mirror([0, 0, 1]) cylinder(d = 4.2, h = 9 + ep);
           //          translate([0, 0, -under_pcb - ep]) cylinder(d = 4.2, h = 4 + ep);
         }
       }
@@ -238,7 +238,7 @@ module base() {
     translate([pcb_xs[4] / 2, 0, 0])
       mirror2([1, 0, 0])
       translate([-pcb_xs[4] / 2, 0, 0])
-        for (j = [0:.5:5.5])
+        for (j = [0.25:.5:5.75])
         {
           s2 = 1 / 8 * 25.4 + xy_hole_slop;
           s3 = 3 / 16 * 25.4 + xy_hole_slop;
@@ -258,7 +258,7 @@ module base() {
                 translate([0, 0, d / 2 + ep])
                   rotate([0, 0, 360 / 16])
                     sphere(d = d / cos(360 / 11.45), $fn = 8);
-                //#cylinder(h = d + ep, d = d);
+                //cylinder(h = d + ep, d = d);
               }
         }
 
