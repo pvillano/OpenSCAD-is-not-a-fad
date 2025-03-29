@@ -78,8 +78,11 @@ slant_angle = asin(slant_opp / slant_hyp);
 min_base_thickness = max(
   stud_below_pcb_bottom + thinnest_layer,
   heatset_height - slant_dz,
-      (pcb_ys[2] - pcb_ys[1] - usb_pcb_length) * slant_opp / slant_hyp + usb_pcb_thicc
+        usb_pcb_thicc * slant_adj / slant_hyp
+    - (pcb_ys[2] - pcb_ys[0] - usb_pcb_length) * slant_opp / slant_hyp
+  + thinnest_layer
 );
+
 
 $fa = .01;
 $fs = draft_render ? 999 : .5;
@@ -235,16 +238,16 @@ module base() {
     translate([pcb_xs[4] / 2, 0, 0])
       mirror2([1, 0, 0])
       translate([-pcb_xs[4] / 2, 0, 0])
-        for (j = [0:5])
+        for (j = [0:.5:5.5])
         {
           s2 = 1 / 8 * 25.4 + xy_hole_slop;
           s3 = 3 / 16 * 25.4 + xy_hole_slop;
           //          z = ;
           max_d = min_base_thickness + j * slant_opp - thinnest_layer;
           d = (max_d >= s3) ? s3 : s2;
-//          z = -min_base_thickness / 2 + j * slant_opp / 2; //centered
-//          z = -min_base_thickness + d / 2 + thinnest_layer; //as low as possible
-          z = -min_base_thickness + max_d / 2 + thinnest_layer; //centered in available space
+          //          z = -min_base_thickness / 2 + j * slant_opp / 2; //centered
+          z = -min_base_thickness + d / 2 + thinnest_layer; //as low as possible
+          //          z = -min_base_thickness + max_d / 2 + thinnest_layer; //centered in available space
 
           y = j * slant_adj + pcb_ys[0];
           if (max_d >= s2)
@@ -282,7 +285,7 @@ if (split == "plate") {
   }
 } else if (split == "base") difference() {
   base();
-  //cube([40, 999, 999], center = true);
+  //  if ($preview) cube([40, 999, 999], center = true);
 }
 difference() {
   //  base();
