@@ -19,7 +19,7 @@ magnet_thickness = 6;
 
 insert_diameter = 4.5;
 insert_depth = 7;
-twt = 2.5;
+twt = 5;
 shadow_line = 1.5;
 
 magnet_space = [
@@ -71,6 +71,7 @@ module main() {
   //height of center of rod
   h = available_space/2 + paper_towel_inner_diameter/2-rod_diameter/2;
   difference() {
+    //main body
     hull() {
       linear_extrude(.01) offset(twt) square([magnet_space.x + pyramid_compensation, magnet_space.y], center = true);
       //unround print-bed side corners
@@ -85,7 +86,11 @@ module main() {
       rotate([90, 0, 0])
         cylinder(h = magnet_space.y + 2 * twt + .2, d = rod_diameter, center = true);
     //empty space for magnets - shadow line!!!
-    translate([0,0,-.1]) linear_extrude(magnet_thickness-shadow_line+.1) square(magnet_space, center = true);
+    //with a taper for better overhangs
+    translate([0,0,-.1])hull(){
+      translate([0,0,magnet_thickness-shadow_line+.1]) linear_extrude(.1) square(magnet_space, center = true);
+      linear_extrude(.1) square(magnet_space + [magnet_thickness, magnet_thickness], center = true);
+    }
     // screw holes
     mirror([1,0,0]){
       translate(magnet_1_holes[0] - .5 * magnet_1_dims) cylinder(d = insert_diameter, h = magnet_thickness+insert_depth-shadow_line);
