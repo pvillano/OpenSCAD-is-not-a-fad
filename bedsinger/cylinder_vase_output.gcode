@@ -95,20 +95,27 @@ M862.1 P0.6 ; nozzle diameter check
 M115 U3.14.1 ; tell printer latest fw version
 G90 ; use absolute coordinates
 M83 ; extruder relative mode
+; M104 S215 ; set extruder temp
+; M140 S60 ; set bed temp
+; Tx
+; M190 S60 ; wait for bed temp
+; M109 S215 ; wait for extruder temp
 G28 W ; home all without mesh bed level
+; G80 X22.393 Y2.39302 W205.214 H205.214 ; mesh bed levelling
 
 ;go outside print area
 G1 Y-3 F853 ; Y vel 1000->853
 G1 Z0.4
 ; select extruder
+; Tc
 ; purge line
-G1 X55
-G1 Z0.3
+G1 X55 F1706 ; X vel 2000->1707
+G1 Z0.3 F853 ; Z vel 1000->853
 G92 E0
-G1 X240 E25
-G1 Y-2
-G1 X55 E25
-G1 Z0.2
+G1 X240 E25 F2048 ; X vel 2200->2048
+G1 Y-2 F853 ; Y vel 1000->853
+G1 X55 E25 F1280 ; X vel 1400->1280
+G1 Z0.2 F853 ; Z vel 1000->853
 M73 P0 R177
 M73 Q0 S177
 G1 X5 E4
@@ -130,9 +137,9 @@ M107
 ;Z:0.2
 ;HEIGHT:0.2
 G1 E-.8 F2100
-G1 Z.6
+G1 Z.6 F640 ; Z vel 720->640
 G1 X46.618 Y39.256 F9612 ; X vel 7670->6827
-G1 Z.2
+G1 Z.2 F640 ; Z vel 720->640
 G1 E.8 F1500
 M204 S800
 ;TYPE:Skirt/Brim
@@ -272,10 +279,10 @@ G1 F8640
 G1 X46.618 Y39.256 E-.0207 F7868 ; Y vel 6747->6144
 G1 X48.854 Y36.728 E-.7793 F8202 ; Y vel 6472->6144
 ;WIPE_END
-G1 Z.6
+G1 Z.6 F640 ; Z vel 720->640
 ; printing object Shape-Cylinder id:1 copy 0
 G1 X48.743 Y41.125 F10243 ; Y vel 10797->10240
-G1 Z.2
+G1 Z.2 F640 ; Z vel 720->640
 G1 E.8 F1500
 M204 S800
 ;TYPE:External perimeter
@@ -642,6 +649,7 @@ G1 X46.613 Y43.757 E.08763 F1075 ; Y vel 952->853
 G1 X47.694 Y42.397 E.0877 F1090 ; Y vel 939->853
 G1 X48.686 Y41.194 E.07871 F1106 ; Y vel 926->853
 M204 S1000
+; M106 S84.15
 ;LAYER_CHANGE
 ;Z:0.5
 ;HEIGHT:0.3
@@ -657,13 +665,14 @@ G1 X48.798 Y41.059 E-.01984 F7997 ; Y vel 6637->6144
 G1 X49.925 Y39.739 E-.40077 F8078 ; Y vel 6571->6144
 G1 X50.954 Y38.576 E-.35872 F8203 ; Y vel 6471->6144
 ;WIPE_END
-G1 Z.5
+G1 Z.5 F640 ; Z vel 720->640
 ;AFTER_LAYER_CHANGE
 ;0.5
+; M104 S210 ; set temperature
 ; stop printing object Shape-Cylinder id:1 copy 0
 G1 Z.9
 G1 X46.475 Y39.435 F10426 ; X vel 10607->10240
-G1 Z.5
+G1 Z.5 F640 ; Z vel 720->640
 G1 E.8 F1500
 ;TYPE:Skirt/Brim
 ;WIDTH:0.65
@@ -803,10 +812,10 @@ G1 X46.475 Y39.435 E-.02088 F7825 ; Y vel 6784->6144
 G1 X46.618 Y39.256 E-.0529 F7863 ; Y vel 6750->6144
 G1 X48.702 Y36.9 E-.72622 F8202 ; Y vel 6472->6144
 ;WIPE_END
-G1 Z.9
+G1 Z.9 F640 ; Z vel 720->640
 ; printing object Shape-Cylinder id:1 copy 0
 G1 X48.443 Y41.174 F10258 ; Y vel 10780->10240
-G1 Z.5
+G1 Z.5 F640 ; Z vel 720->640
 G1 E.8 F1500
 M204 S800
 ;TYPE:External perimeter
@@ -1176,6 +1185,7 @@ G1 X46.455 Y43.634 E.12706 F1936 ; Y vel 1666->1536
 G1 X47.54 Y42.27 E.1273 F1962 ; Y vel 1643->1536
 G1 X48.386 Y41.244 E.09713 F1990 ; Y vel 1620->1536
 M204 S1000
+; M106 S170.85
 ;LAYER_CHANGE
 ;Z:0.8
 ;HEIGHT:0.3
@@ -1191,13 +1201,13 @@ G1 X48.644 Y40.93 E-.07299 F7960 ; Y vel 6669->6144
 G1 X49.774 Y39.607 E-.40175 F8080 ; Y vel 6570->6144
 G1 X50.648 Y38.62 E-.30442 F8206 ; Y vel 6468->6144
 ;WIPE_END
-G1 Z.8
+G1 Z.8 F640 ; Z vel 720->640
 ;AFTER_LAYER_CHANGE
 ;0.8
 ; stop printing object Shape-Cylinder id:1 copy 0
 G1 Z1.2
 G1 X46.335 Y39.612 F10507 ; X vel 10525->10240
-G1 Z.8
+G1 Z.8 F640 ; Z vel 720->640
 G1 E.8 F1500
 ;TYPE:Skirt/Brim
 ;WIDTH:0.65
@@ -1337,10 +1347,10 @@ G1 X46.335 Y39.612 E-.02088 F7825 ; Y vel 6784->6144
 G1 X46.618 Y39.256 E-.10501 F7848 ; Y vel 6763->6144
 G1 X48.552 Y37.069 E-.67411 F8201 ; Y vel 6472->6144
 ;WIPE_END
-G1 Z1.2
+G1 Z1.2 F640 ; Z vel 720->640
 ; printing object Shape-Cylinder id:1 copy 0
 G1 X48.3 Y41.349 F10257 ; Y vel 10781->10240
-G1 Z.8
+G1 Z.8 F640 ; Z vel 720->640
 G1 E.8 F1500
 M204 S800
 ;TYPE:External perimeter
@@ -1709,6 +1719,7 @@ G1 X46.455 Y43.634 E.12706 F1936 ; Y vel 1666->1536
 G1 X47.542 Y42.268 E.12751 F1962 ; Y vel 1643->1536
 G1 X48.242 Y41.418 E.08043 F1989 ; Y vel 1621->1536
 M204 S1000
+; M106 S255
 ;LAYER_CHANGE
 ;Z:1.1
 ;HEIGHT:0.3
@@ -219351,11 +219362,11 @@ G1 X50.498 Y38.789 E-.25226 F8204 ; Y vel 6470->6144
 M107
 ;TYPE:Custom
 ; Filament-specific end gcode
-G1 Z178.2 ; Move print head up
+G1 Z178.2 F640 ; Move print head up
 
 G1 X0 Y210 F7117 ; park
 
-G1 Z210 ; Move print head further up
+G1 Z210 F640 ; Move print head further up
 
 G1 E2 F5000
 G1 E2 F5500
@@ -219368,12 +219379,14 @@ G1 E10 F3150
 G1 E-10 F3250
 G1 E10 F3300
 
+; M140 S0 ; turn off heatbed
 M107 ; turn off fan
 M702 C
 G4 ; wait
 M221 S100 ; reset flow
 M900 K0 ; reset LA
 
+; M104 S0 ; turn off temperature
 M84 ; disable motors
 ; max_layer_z = 177.2
 M73 P100 R0

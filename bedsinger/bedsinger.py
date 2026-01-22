@@ -24,7 +24,7 @@ def translate(lines: Iterable[str], demo: bool, gantry: str):
     X = 0
     Y = 0
     Z = 0
-    lastEmittedF = 0
+    lastEmittedF = '0'
     inputF = 0
     for raw_line in lines:
         if len(raw_line.strip()) == 0:
@@ -35,51 +35,49 @@ def translate(lines: Iterable[str], demo: bool, gantry: str):
             yield raw_line
             continue
         comments = maybe_comments[0] if maybe_comments else ""
-        op_code, *params_list = line.strip().split()
-        if demo and op_code in "G80 M106 M104 M140 M109 M190 Tx Tc".split():
+        tokens = line.strip().split()
+        if demo and tokens[0] in "G80 M106 M104 M140 M109 M190 Tx Tc".split():
             yield "; " + raw_line
             continue
-        if op_code not in {"G0", "G1"}:
+        if tokens[0] not in {"G0", "G1"}:
             yield raw_line
             continue
-        params_dict = {XYZEF[0]: float(XYZEF[1:]) for XYZEF in params_list}
-        nextX = params_dict.get("X", X)
-        nextY = params_dict.get("Y", Y)
-        nextZ = params_dict.get("Z", Z)
+        tokens_dict: dict[str, str] = {XYZEF[0]: XYZEF[1:] for XYZEF in tokens}
+        nextX = float(tokens_dict.get("X", X))
+        nextY = float(tokens_dict.get("Y", Y))
+        nextZ = float(tokens_dict.get("Z", Z))
         # inputF is only set by original g-code
-        inputF = params_dict.get("F", inputF)
+        inputF = float(tokens_dict.get("F", inputF))
         dX = nextX - X
         dY = nextY - Y
         dZ = nextZ - Z
         if dX == dY == dZ == 0:
             # we are not moving, preserve
-            lastEmittedF = params_dict.get("F", lastEmittedF)
+            lastEmittedF:str = tokens_dict.get("F", lastEmittedF)
             yield raw_line
         else:
-            new_tokens = [op_code, *params_list]
-            # TODO: handle arbitrary params order
-            if new_tokens[-1].startswith("F"):
-                new_tokens.pop()
+            if gantry == "corexy":
+                d, direction = max((abs(dX - dY), "X-Y"), (abs(dX + dY), "X+Y"), (abs(dZ), "Z"))
+            else:
+                d, direction = max((abs(dX), "X"), (abs(dY), "Y"), (abs(dZ), "Z"))
+            V = sqrt((inputF ** 2) * (d ** 2) / (dX ** 2 + dY ** 2 + dZ ** 2))
+            targetV = tune(V)
 
-            if dY != 0:
-                if gantry == "corexy":
-                    d, direction = max((abs(dX - dY), "X-Y"), (abs(dX + dY), "X+Y"), (abs(dZ), "Z"))
-                else:
-                    d, direction = max((abs(dX), "X"), (abs(dY), "Y"), (abs(dZ), "Z"))
-                V = sqrt((inputF ** 2) * (d ** 2) / (dX ** 2 + dY ** 2 + dZ ** 2))
-                targetV = tune(V)
+            nextF: float = inputF * targetV / V
+            if int(nextF) != int(float(lastEmittedF)):
+                tokens_dict["F"] = f"{int(nextF)}"
+                lastEmittedF = f"{int(nextF)}"
+                if comments == "":
+                    comments = f" {direction} vel {V:.0f}->{targetV:.0f}"
+            else:
+                if "F" in tokens_dict:
+                    tokens_dict.pop("F")
 
-                nextF = inputF * targetV / V
-                if int(nextF) != int(lastEmittedF):
-                    new_tokens.append(f"F{int(nextF)}")
-                    lastEmittedF = nextF
-                    if comments == "":
-                        comments = f" {direction} vel {V:.0f}->{targetV:.0f}"
-
+            result = " ".join(map(lambda kv: f"{kv[0]}{kv[1]}", tokens_dict.items()))
             if comments:
-                new_tokens.append(f";{comments}")
+                result += f" ;{comments}"
 
-            yield " ".join(new_tokens) + "\n"
+            yield result + "\n"
         X = nextX
         Y = nextY
         Z = nextZ
