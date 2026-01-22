@@ -9,12 +9,19 @@ from math import sqrt, floor, log2, log
 def alpha_only(s: str) -> str:
     return "".join(ch for ch in s if ch.isalpha())
 
+
 def tune(frequency: float) -> float:
-    base = 2
-    candidate = base ** floor(log(frequency, base))
-    # lowers by at most a half step
-    assert (frequency / base) <= candidate <= frequency
+    nearest_octave = 2 ** floor(log(frequency, 2))
+    candidates = [
+        nearest_octave,
+        nearest_octave * 3/2, # third
+        nearest_octave * 5/4 # fifth
+    ]
+    candidate = max([note for note in candidates if note <= frequency])
+    # lowers, and by at most an octave
+    assert (frequency / 2) <= candidate <= frequency
     return candidate
+
 
 def translate(lines: Iterable[str], dry_run=True, axis: str = 'Y'):
     X = 0
@@ -108,7 +115,8 @@ def stats(lines: Iterable[str]):
 
     print(opcode_counter.most_common(10), file=sys.stderr)
     print(g1_axis_counter.most_common(99), file=sys.stderr)
-    print(min(feedrate_counter.items()), " ".join(sorted(map(str, feedrate_counter.most_common(3)))), max(feedrate_counter.items()),file=sys.stderr)
+    print(min(feedrate_counter.items()), " ".join(sorted(map(str, feedrate_counter.most_common(3)))),
+          max(feedrate_counter.items()), file=sys.stderr)
 
 
 def main():
