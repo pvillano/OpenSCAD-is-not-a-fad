@@ -54,18 +54,19 @@ def translate(lines: Iterable[str], dry_run=True, axis: str = 'Y'):
             if dY != 0:
                 base = 2
                 # dX^2 + dY^2 + dZ^2 = c * F^2
-                Vy = sqrt((inputF ** 2) * (dY ** 2) / (dX ** 2 + dY ** 2 + dZ ** 2))
-                targetVy = base ** floor(log(Vy, base))
+                d, direction = max((abs(dX), 'X'), (abs(dY), 'Y'), (abs(dZ), 'Z'))
+                V = sqrt((inputF ** 2) * (d ** 2) / (dX ** 2 + dY ** 2 + dZ ** 2))
+                targetV = base ** floor(log(V, base))
 
                 # lowers by at most a half step
-                assert (1 / base) <= targetVy / Vy <= 1
+                assert (1 / base) <= targetV / V <= 1
 
-                nextF = inputF * targetVy / Vy
+                nextF = inputF * targetV / V
                 if int(nextF) != int(lastEmittedF):
                     new_tokens.append(f"F{int(nextF)}")
                     lastEmittedF = nextF
                     if comments == "":
-                        comments = f" Vy {Vy:.0f}->{targetVy:.0f}"
+                        comments = f" {direction} vel {V:.0f}->{targetV:.0f}"
 
             if comments:
                 new_tokens.append(f";{comments}")
@@ -93,7 +94,7 @@ def stats(lines: Iterable[str]):
                 g1_axis_counter["G2" + alpha] += 1
                 for r in rest:
                     if r.startswith("F"):
-                        feedrate_counter[r] += 1
+                        feedrate_counter[float(r[1:])] += 1
             #     case ["M204"]:
             #         opcode_counter["M204 - Set Starting Acceleration"] += 1
             #     case ["M73"]:
@@ -105,7 +106,7 @@ def stats(lines: Iterable[str]):
 
     print(opcode_counter.most_common(10), file=sys.stderr)
     print(g1_axis_counter.most_common(99), file=sys.stderr)
-    print(feedrate_counter.most_common(10), file=sys.stderr)
+    print(min(feedrate_counter.items()), " ".join(sorted(map(str, feedrate_counter.most_common(3)))), max(feedrate_counter.items()),file=sys.stderr)
 
 
 def main():
@@ -116,7 +117,7 @@ def main():
 
     print("; Warning: bedsinger is brittle af. Use at your own risk", file=sys.stderr)
     with open(args.filename) as f:
-        # stats(f)
+        stats(f)
         for line in translate(f):
             print(line, end="")
 
