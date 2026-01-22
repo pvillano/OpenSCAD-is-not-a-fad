@@ -11,11 +11,14 @@ def alpha_only(s: str) -> str:
 
 
 def tune(frequency: float) -> float:
+    #TODO: analyse the overtone series for a better set of notes...
     nearest_octave = 2 ** floor(log(frequency, 2))
     candidates = [
-        nearest_octave,
-        nearest_octave * 3/2, # third
-        nearest_octave * 5/4 # fifth
+        nearest_octave * 24/24, # first
+        nearest_octave * 27/24, # second
+        nearest_octave * 30/24, # third
+        nearest_octave * 36/24, # fifth
+        nearest_octave * 40/24, # sixth
     ]
     candidate = max([note for note in candidates if note <= frequency])
     # lowers, and by at most an octave
