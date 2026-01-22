@@ -26,7 +26,7 @@ def translate(lines: Iterable[str], dry_run=True, axis: str = 'Y'):
             continue
         comments = maybe_comments[0] if maybe_comments else ""
         op_code, *params_list = line.strip().split()
-        if dry_run and op_code in {'G80', 'M104', 'M140', 'M109', 'M190', 'Tx', 'Tc'}:
+        if dry_run and op_code in {'G80', 'M106', 'M104', 'M140', 'M109', 'M190', 'Tx', 'Tc'}:
             continue
         if op_code not in {'G0', 'G1'}:
             yield raw_line
