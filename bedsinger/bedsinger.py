@@ -9,6 +9,12 @@ from math import sqrt, floor, log2, log
 def alpha_only(s: str) -> str:
     return "".join(ch for ch in s if ch.isalpha())
 
+def tune(frequency: float) -> float:
+    base = 2
+    candidate = base ** floor(log(frequency, base))
+    # lowers by at most a half step
+    assert (frequency / base) <= candidate <= frequency
+    return candidate
 
 def translate(lines: Iterable[str], dry_run=True, axis: str = 'Y'):
     X = 0
@@ -52,14 +58,10 @@ def translate(lines: Iterable[str], dry_run=True, axis: str = 'Y'):
                 new_tokens.pop()
 
             if dY != 0:
-                base = 2
                 # dX^2 + dY^2 + dZ^2 = c * F^2
                 d, direction = max((abs(dX), 'X'), (abs(dY), 'Y'), (abs(dZ), 'Z'))
                 V = sqrt((inputF ** 2) * (d ** 2) / (dX ** 2 + dY ** 2 + dZ ** 2))
-                targetV = base ** floor(log(V, base))
-
-                # lowers by at most a half step
-                assert (1 / base) <= targetV / V <= 1
+                targetV = tune(V)
 
                 nextF = inputF * targetV / V
                 if int(nextF) != int(lastEmittedF):
@@ -116,8 +118,9 @@ def main():
     args = parser.parse_args()
 
     print("; Warning: bedsinger is brittle af. Use at your own risk", file=sys.stderr)
-    with open(args.filename) as f:
-        stats(f)
+    # with open(args.filename, encoding="utf-8") as f:
+    #     stats(f)
+    with open(args.filename, encoding="utf-8") as f:
         for line in translate(f):
             print(line, end="")
 
