@@ -1,0 +1,42 @@
+// exponential smooth minumum of a and b, with smoothing factor k.
+float smoothMin( float a, float b, float k)
+{
+    float r = 1. + exp2(-abs(a-b)/k);
+    return min(a,b) - k * log2(r);
+}
+
+// A smooth face-centered-cubic lattice.
+float sdSmoothLattice(vec3 position, float radius, float smoothness)
+{
+    position -= round(position);
+    position = abs(position);
+    if(position.x + position.y > .5){
+        position.yx = vec2(.5) - position.xy;
+    }
+    if(position.x + position.z > .5){
+        position.zx = vec2(.5) - position.xz;
+    }
+    if(position.y + position.z > .5){
+        position.zy = vec2(.5) - position.yz;
+    }
+    vec3 v = vec3(1., -1.,0.)/sqrt(2.);
+    return smoothMin(smoothMin(smoothMin(smoothMin(smoothMin(
+        length(position - dot(position, v.xxz) * v.xxz) - radius,
+        length(position - dot(position, v.xyz) * v.xyz) - radius, smoothness),
+        length(position - dot(position, v.xzx) * v.xzx) - radius, smoothness),
+        length(position - dot(position, v.xzy) * v.xzy) - radius, smoothness),
+        length(position - dot(position, v.zxx) * v.zxx) - radius, smoothness),
+        length(position - dot(position, v.zxy) * v.zxy) - radius, smoothness
+    );
+}
+
+float map(in vec3 position)
+{
+    vec3 q = abs(position);
+    float n = 8.;
+    float k = 100./n;
+    return max(
+        sdSmoothLattice(position / k + .5, .6/k, .15/k) * k,
+        max(max(q.x,q.y),q.z)-50. - .6
+    );
+}
