@@ -5,13 +5,14 @@ use <gridfinity-rebuilt-openscad/src/core/bin.scad>
 
 /* [Design Parameters] */
 bit_count = 2;
-box_gap = 5;
-removal_tilt = 15; // [0:5:45]
-removal_fulcrum = .35; // [0:.5]
+box_gap = 4;
+removal_tilt = 40; // [0:5:90]
+removal_fulcrum = .37; // [0:.5]
 
 /* [Label] */
 font_height = 14;
 font_width = 14;
+starting_number = 1;
 
 /* [Box Measurements] */
 box_length = 70;
@@ -24,13 +25,13 @@ collar_h = 6;
 // loose fit for bit diameter
 bit_clearance_d=5;
 //max length the bit sticks out past the collar
-bit_shoulder=35;
+bit_shoulder=33;
 
 /* [General Settings] */
 // number of bases along y-axis
 gridy = 1;
 // bin height. See bin height information and "gridz_define" below.
-gridz = 6;
+gridz = 5;
 
 /* [Toggles] */
 // snap gridz height to nearest 7mm increment
@@ -83,7 +84,7 @@ binL = new_bin(
   grid_size = [gridx, gridy],
   height_mm = height(gridz, gridz_define, enable_zsnap),
   include_lip = style_lip == 0,
-  hole_options = hole_options,
+  hole_options = undef,//hole_options,
   only_corners = only_corners || half_grid,
   grid_dimensions = GRID_DIMENSIONS_MM / (half_grid ? 2 : 1),
   base_thickness = bottom_layer
@@ -116,7 +117,7 @@ bin_render(binL){
   //check that bit doesn't poke through bottom
   translate([-x_room/2+chamfered_od/2+x_spacing,0,-2])mirror([0,0,1]) %bitHole();
 
-  for(i=[1:bit_count]) translate([0,-(i-(bit_count+1)/2)*(box_width+box_gap),0]){
+  for(i=[0:bit_count-1]) translate([0,-(i-(bit_count-1)/2)*(box_width+box_gap),0]){
     translate([-x_room/2,0,0]){
       // bit holder
       off = chamfered_od/2+x_spacing;
@@ -124,29 +125,59 @@ bin_render(binL){
         bitHole();
       }
 
+      //label
       off1 = off + chamfered_od/2+x_spacing+font_width/2;
       translate([off1,0,0])
       mirror([0,0,1])
-        linear_extrude(2)
-        text(str(i), font_height, halign="center", valign="center");
+        linear_extrude(1.4)
+        text(str(i+starting_number), font_height, halign="center", valign="center");
 
       off2 = off1 +font_width/2+x_spacing;
-      translate([off2,-box_width/2, -box_width])union(){
+      translate([off2,-box_width/2, -box_width]) union(){
         //base slot
         cube([box_length, box_width, box_width]);
+
+        // extra vertical spot
+        translate([(1-removal_fulcrum)*(box_length)/2-box_width/2,0,-19])
+          cube([box_width, box_width, box_length]);
+        //chamfer
+        translate([(1-removal_fulcrum)*(box_length)/2,0,-box_width*.7])
+          rotate([0,-45,0])
+          cube(box_width);
 
         // wiggle room
         wiggle_ratio = removal_fulcrum;
         wiggle_radius = norm([box_length*wiggle_ratio,box_width]);
 
-        // tilt affordance
-        translate([(1-wiggle_ratio)*box_length,0,0]) intersection(){
-          translate([0,0,-wiggle_radius]) cube([wiggle_radius, box_width, wiggle_radius+box_width]);
-          rotate([0,removal_tilt,0]) cube([wiggle_radius, box_width, wiggle_radius]);
-          rotate([-90,0,0]) cylinder(r=wiggle_radius,h=box_width);
-        }
+        // tiltability
+        translate([(1-wiggle_ratio)*box_length,0,0]) {
+          intersection() {
+            //full sweep
+            rotate([-90, 0, 0]) cylinder(r = wiggle_radius, h = box_width);
+            //crop height
+            translate([0, 0, -wiggle_radius]) cube([wiggle_radius, box_width, wiggle_radius + box_width]);
+            //crop angle
+            rotate([0, removal_tilt, 0]) translate([-wiggle_radius, 0, 0]) cube([2 * wiggle_radius, box_width,
+              wiggle_radius]);
+          }
 
-        //todo: imply tilt affordance with a visible slope
+          // tiltability affordance
+          difference() {
+            //full sweep
+            translate([0, -box_gap / 2,0 ]) rotate([-90, 0, 0]) cylinder(r = wiggle_radius, h = box_width + box_gap);
+
+            //remove center, leave bevel
+            translate([0, -box_gap / 2-.1,0 ]) rotate([-90, 0, 0]) cylinder(r=box_width,h=box_width+box_gap+.2);
+
+            rotate([0, removal_tilt, 0])
+              translate([0, -box_gap / 2-.1, -2*wiggle_radius+box_width])
+              cube([2 * wiggle_radius, box_width + box_gap+.2, 2 * wiggle_radius]);
+
+            translate([-wiggle_radius, -box_gap / 2-.1, -wiggle_radius]) cube([wiggle_radius,wiggle_radius,2*wiggle_radius]);
+          }
+          difference(){
+          }
+        }
       }
     }
   }
