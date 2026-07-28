@@ -59,25 +59,6 @@ $fs = .3;
 // number of bases along x-axis
 gridx = 3;
 
-
-/* [Base Hole Options] */
-// only cut magnet/screw holes at the corners of the bin to save uneccesary print time
-only_corners = false;
-//Use gridfinity refined hole style. Not compatible with magnet_holes!
-refined_holes = false;
-// Base will have holes for 6mm Diameter x 2mm high magnets.
-magnet_holes = true;
-// Base will have holes for M3 screws.
-screw_holes = true;
-// Magnet holes will have crush ribs to hold the magnet.
-crush_ribs = true;
-// Magnet/Screw holes will have a chamfer to ease insertion.
-chamfer_holes = true;
-// Magnet/Screw holes will be printed so supports are not needed.
-printable_hole_top = true;
-
-hole_options = bundle_hole_options(refined_holes, magnet_holes, screw_holes, crush_ribs, chamfer_holes, printable_hole_top);
-
 // ===== IMPLEMENTATION ===== //
 
 binL = new_bin(
@@ -85,7 +66,7 @@ binL = new_bin(
   height_mm = height(gridz, gridz_define, enable_zsnap),
   include_lip = style_lip == 0,
   hole_options = undef,//hole_options,
-  only_corners = only_corners || half_grid,
+  only_corners = false,
   grid_dimensions = GRID_DIMENSIONS_MM / (half_grid ? 2 : 1),
   base_thickness = bottom_layer
 );
@@ -136,6 +117,9 @@ bin_render(binL){
       translate([off2,-box_width/2, -box_width]) union(){
         //base slot
         cube([box_length, box_width, box_width]);
+
+        // for sliding in...
+        translate([0,0,box_width/3]) rotate([0,-13,0]) cube(box_width);
 
         // extra vertical spot
         translate([(1-removal_fulcrum)*(box_length)/2-box_width/2,0,-19])
