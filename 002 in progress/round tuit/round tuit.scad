@@ -7,7 +7,7 @@ border_percent = 2.5;
 border = od/2*border_percent/100;
 id = od -2*border;
 
-$fs=.5;
+$fs=1.5;
 $fa=.01;
 
 module guilloche(tip_diameter=.1, tip_angle=90){
@@ -32,12 +32,13 @@ module chamfer_extrude(height, half_angle){
     }
 }
 
-module paragraph(lines=[""], size=8, spacing=1.4){
+module paragraph(lines=[""], size=8, spacing=1.4, height, half_angle){
     for(i=[0:len(lines)-1]){
         t = lines[i];
         dy = size*spacing;
         y = dy * (-i + len(lines)/2 - .5);
         translate([0,y,0])
+                chamfer_extrude(height, half_angle)
                 text(t, size,
                 font="Trebuchet MS:style=Bold",
                 halign="center",
@@ -48,7 +49,7 @@ module paragraph(lines=[""], size=8, spacing=1.4){
 
 module backed_tuit(){
     //lines=["A","ROUND","TUIT"];
-    chamfer_extrude(engrave_depth, 15) paragraph(["TUIT"], tuit_size);
+    paragraph(["TUIT"], tuit_size, 1.4, engrave_depth, 15);
     translate([0,0,-1])
         chamfer_extrude(1, 45)
         offset(r=1.2)
@@ -77,7 +78,7 @@ module main(){
 
     translate([0,0,h/2-engrave_depth]) backed_tuit();
     
-    difference(){
+    !difference(){
     
         cylinder(h=h-2*engrave_depth, d=od, center=true);
         
@@ -89,7 +90,6 @@ module main(){
             translate([0,0,-engrave_depth])
             mirror([0,0,1])
             translate([0,0,-1])
-            chamfer_extrude(1,15)
             paragraph(
             ["This is a",
             "round tuit. Now",
@@ -97,9 +97,11 @@ module main(){
             "you can finish all",
             "the things you put",
             "aside until you got",
-            "got A ROUND",
-            "TUIT!",
-            ], 3.2
+            "A ROUND TUIT!",
+            "~~~~~~~~~"
+            ],
+            3.2,1.4,
+            1,15
         );
     }
 }
