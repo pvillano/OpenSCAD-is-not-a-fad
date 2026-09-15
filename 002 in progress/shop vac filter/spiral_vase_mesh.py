@@ -102,9 +102,12 @@ def main():
 
         if i < 0:
             pzero = (0,0,0)
-            p00 = (p00[0], p00[1], 0)
-            p10 = (p10[0], p10[1], 0)
-            p20 = (p20[0], p20[1], 0)
+
+            # pull the top coord down to force a degenerate tri
+            p00 = (p01[0], p01[1], 0)
+            p10 = (p11[0], p11[1], 0)
+            p20 = (p21[0], p21[1], 0)
+
             before = (p00, p10, p11, p01)
             hole = (p10, p20, p21, p11)
             strip0 = (p00, pzero, p10)
@@ -118,9 +121,12 @@ def main():
             stlOut.write_triangle(strip1)
         elif i >= n-sector_count:
             pzero = (0,0,h)
-            p01 = (p01[0], p01[1], h)
-            p11 = (p11[0], p11[1], h)
-            p21 = (p21[0], p21[1], h)
+
+            #pull the bottom coord up to get a degenerate tri
+            p01 = (p00[0], p00[1], h)
+            p11 = (p10[0], p10[1], h)
+            p21 = (p20[0], p20[1], h)
+
             before = (p00, p10, p11, p01)
             hole = (p10, p20, p21, p11)
             strip0 = (p11, pzero, p01)
