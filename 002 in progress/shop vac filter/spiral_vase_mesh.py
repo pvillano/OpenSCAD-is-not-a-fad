@@ -16,7 +16,7 @@ solid_layers_height = 1.
 first_layer = .2
 filter_od_unused = 175
 
-sector_count = round(3.1415*od/cell_width/4)*2+1
+sector_count = round(pi*outer_diameter/cell_width/4)*2+1
 extrusion_width = .75*nozzle_diameter
 inner_diameter = outer_diameter - 2*depth
 
@@ -27,13 +27,17 @@ type Point = tuple[float, float, float]
 type Triangle = tuple[Point, Point, Point]
 type Quad = tuple[Point, Point, Point, Point]
 
-def coord(theta: float,r: float=od/2 ) -> Point:
+def coord(theta: float,r: float=outer_diameter/2 ) -> Point:
     return r * cos(theta), r * sin(theta), theta / (2 * pi) * layer_height
 
 def quad_to_tris(quad: Quad) -> tuple[Triangle, Triangle]:
-    if any(i != j and a == b for (i,a), (j,b) in product(enumerate(quad), enumerate(quad))):
-        raise Exception("fuck")
-    return (quad[0], quad[1], quad[2]), (quad[0], quad[2], quad[3])
+    ret = []
+    for tri in [(quad[0], quad[1], quad[2]), (quad[0], quad[2], quad[3])]:
+        if tri[0] == tri[1] or tri[1] == tri[2] or tri[2] == tri[0]:
+            print(f"Warning: degenerate triangle {tri}")
+        else:
+            ret.append(tri)
+    return tuple(ret)
 
 """
 Each sector is seven quads
@@ -65,6 +69,14 @@ def main():
 
     for i in range(-sector_count,n):
 
+        # adding 2pi later introduces rounding errors
+        # putting this first makes sure I didn't miss a renamed reference
+        a02pi = (i+sector_count) * 2*pi/sector_count
+        a12pi = a02pi + extrusion_width/(outer_diameter*pi)*2*pi
+        a1a2pi = a02pi + extrusion_width/(inner_diameter*pi)*2*pi #slightly larger than a1a
+        a22pi = ((i+sector_count) + 1 ) * 2*pi/sector_count
+        a2a2pi = a22pi - (a1a2pi - a12pi)
+
         a0 = i * 2*pi/sector_count
         a1 = a0 + extrusion_width/(outer_diameter*pi)*2*pi
         a1a = a0 + extrusion_width/(inner_diameter*pi)*2*pi #slightly larger than a1a
@@ -72,15 +84,16 @@ def main():
         a2a = a2 - (a1a - a1)
 
         p00 = coord(a0)
-        p01 = coord(a0+2*pi)
         p10 = coord(a1)
-        p11 = coord(a1+2*pi)
         p20 = coord(a2)
-        p21 = coord(a2+2*pi)
         p10a = coord(a1a, inner_diameter/2)
-        p11a = coord(a1a+2*pi, inner_diameter/2)
         p20a = coord(a2a, inner_diameter/2)
-        p21a = coord(a2a+2*pi, inner_diameter/2)
+
+        p01 =   coord(a02pi)
+        p11 =   coord(a12pi)
+        p21 =   coord(a22pi)
+        p11a = coord(a1a2pi, inner_diameter/2)
+        p21a = coord(a2a2pi, inner_diameter/2)
 
 
         # quads, verts are ccw from lower left
