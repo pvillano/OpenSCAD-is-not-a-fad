@@ -1,16 +1,14 @@
 from itertools import chain, product
-from math import pi, sin, cos, ceil
+from math import pi, sin, cos, ceil, atan
 
 from libraries.stl import STLBuffer
 
-outer_diameter = 20
-h = 20
-depth = 1
-layer_height = 4.3
-cell_width = 8
-nozzle_diameter = 5.6
-od = outer_diameter
-solid_layers_height = 1.
+outer_diameter = 200
+h = 200
+depth = 7
+layer_height = .35
+cell_width = 9
+nozzle_diameter = .6
 
 # unchanging
 first_layer = .2
@@ -20,14 +18,14 @@ sector_count = round(pi*outer_diameter/cell_width/4)*2+1
 extrusion_width = .75*nozzle_diameter
 inner_diameter = outer_diameter - 2*depth
 
-n = ceil(h / layer_height * sector_count)
-h = n * layer_height / sector_count # top layer is simpler this way
+n = ceil(h / layer_height * sector_count)+1
 
 type Point = tuple[float, float, float]
 type Triangle = tuple[Point, Point, Point]
 type Quad = tuple[Point, Point, Point, Point]
 
-def coord(theta: float,r: float=outer_diameter/2 ) -> Point:
+def coord(i: int,offset: float = 0, *, r: float=outer_diameter/2 ) -> Point:
+    theta = i * 2 * pi/sector_count + offset
     return r * cos(theta), r * sin(theta), theta / (2 * pi) * layer_height
 
 def quad_to_tris(quad: Quad) -> tuple[Triangle, Triangle]:
@@ -60,40 +58,30 @@ p10--------------------p20
 a1   a1a        a2a    a2
 """
 
-# this should not do anything
-h = coord(n * 2*pi/sector_count)[2]
-
 def main():
 
     stlOut = STLBuffer()
 
+    half_angle_outer = atan(extrusion_width/outer_diameter)
+    half_angle_inner = atan(extrusion_width/inner_diameter)
+    a0_a1 = 2*half_angle_outer
+    a0_a1a = half_angle_outer + half_angle_inner
+    a2_a2a = half_angle_outer - half_angle_inner
     for i in range(-sector_count,n):
 
-        # adding 2pi later introduces rounding errors
-        # putting this first makes sure I didn't miss a renamed reference
-        a02pi = (i+sector_count) * 2*pi/sector_count
-        a12pi = a02pi + extrusion_width/(outer_diameter*pi)*2*pi
-        a1a2pi = a02pi + extrusion_width/(inner_diameter*pi)*2*pi #slightly larger than a1a
-        a22pi = ((i+sector_count) + 1 ) * 2*pi/sector_count
-        a2a2pi = a22pi - (a1a2pi - a12pi)
-
-        a0 = i * 2*pi/sector_count
-        a1 = a0 + extrusion_width/(outer_diameter*pi)*2*pi
-        a1a = a0 + extrusion_width/(inner_diameter*pi)*2*pi #slightly larger than a1a
-        a2 = (i + 1 ) * 2*pi/sector_count
-        a2a = a2 - (a1a - a1)
+        a0, a2 = i, i+1
 
         p00 = coord(a0)
-        p10 = coord(a1)
+        p10 = coord(a0, a0_a1)
         p20 = coord(a2)
-        p10a = coord(a1a, inner_diameter/2)
-        p20a = coord(a2a, inner_diameter/2)
+        p10a = coord(a0, a0_a1a, r=inner_diameter/2)
+        p20a = coord(a2, a2_a2a, r=inner_diameter/2)
 
-        p01 =   coord(a02pi)
-        p11 =   coord(a12pi)
-        p21 =   coord(a22pi)
-        p11a = coord(a1a2pi, inner_diameter/2)
-        p21a = coord(a2a2pi, inner_diameter/2)
+        p01 = coord(a0+sector_count)
+        p11 = coord(a0+sector_count, a0_a1)
+        p21 = coord(a2+sector_count)
+        p11a = coord(a0+sector_count, a0_a1a, r=inner_diameter/2)
+        p21a = coord(a2+sector_count, a2_a2a, r=inner_diameter/2)
 
 
         # quads, verts are ccw from lower left
@@ -101,7 +89,6 @@ def main():
         hole = (p10, p20, p21, p11)
 
         if i < 0:
-            pzero = (0,0,0)
 
             # pull the top coord down to force a degenerate tri
             p00 = (p01[0], p01[1], 0)
@@ -110,16 +97,30 @@ def main():
 
             before = (p00, p10, p11, p01)
             hole = (p10, p20, p21, p11)
+            stlOut.write_triangles(quad_to_tris(before))
+            stlOut.write_triangles(quad_to_tris(hole))
+
+            # put another layer below
+            h0 = -.2-layer_height/2+.001
+
+            p01, p11, p21 = p00, p10, p20
+            p00 = (p01[0], p01[1], h0)
+            p10 = (p11[0], p11[1], h0)
+            p20 = (p21[0], p21[1], h0)
+
+            before = (p00, p10, p11, p01)
+            hole = (p10, p20, p21, p11)
+            stlOut.write_triangles(quad_to_tris(before))
+            stlOut.write_triangles(quad_to_tris(hole))
+
+            pzero = (0,0,h0)
             strip0 = (p00, pzero, p10)
             strip1 =(p10, pzero, p20)
 
-            # TODO: can create a degenerate triangle
-            stlOut.write_triangles(quad_to_tris(before))
-
-            stlOut.write_triangles(quad_to_tris(hole))
             stlOut.write_triangle(strip0,)
             stlOut.write_triangle(strip1)
         elif i >= n-sector_count:
+            h = coord(n)[2]
             pzero = (0,0,h)
 
             #pull the bottom coord up to get a degenerate tri
@@ -134,7 +135,6 @@ def main():
 
             stlOut.write_triangles(quad_to_tris(before))
 
-            # TODO: can create a degenerate triangle
             stlOut.write_triangles(quad_to_tris(hole))
             stlOut.write_triangle(strip0)
             stlOut.write_triangle(strip1)
