@@ -52,7 +52,7 @@ $fa = 0.1;
 //shorthands
 od = outer_diameter;
 
-//calculated
+/* [calculated] */
 
 //odd number so that "layers" "alternate"
 sector_count = round(3.1415*od/cell_width/4)*2+1;
