@@ -1,6 +1,6 @@
 import datetime
 import struct
-import sys
+from collections.abc import Iterable
 from io import BytesIO
 from itertools import chain
 
@@ -34,34 +34,38 @@ class STLBuffer:
     Incrementally encodes a binary STL file.
     Get the final file with getvalue().
     """
-    buffer: BytesIO
-    facet_count = 0
+    _buffer: BytesIO
+    _facet_count = 0
 
     def __init__(self):
-        self.buffer = BytesIO()
+        self._buffer = BytesIO()
+
+    def write_triangles(self, triangles: Iterable[Triangle]):
+        for triangle in triangles:
+            self.write_triangle(triangle)
 
     def write_triangle(self, triangle: Triangle):
         normalVec = normal(triangle)
 
         # output normal
-        self.buffer.write(struct.pack('3f', *normalVec))
+        self._buffer.write(struct.pack('3f', *normalVec))
 
         # output points
-        self.buffer.write(struct.pack('9f', *chain.from_iterable(triangle)))
+        self._buffer.write(struct.pack('9f', *chain.from_iterable(triangle)))
 
         # legacy 2 byte
-        self.buffer.write(struct.pack('xx'))
+        self._buffer.write(struct.pack('xx'))
 
-        self.facet_count += 1
+        self._facet_count += 1
 
     def get_header(self) -> bytes:
         s = f"Generated on {datetime.datetime.now().isoformat()}"
-        return s.encode().ljust(80) + struct.pack('i', self.facet_count)
+        return s.encode().ljust(80) + struct.pack('i', self._facet_count)
 
     def getvalue(self) -> bytes:
         b = BytesIO()
         b.write(self.get_header())
-        b.write(self.buffer.getvalue())
+        b.write(self._buffer.getvalue())
         return b.getvalue()
 
 
