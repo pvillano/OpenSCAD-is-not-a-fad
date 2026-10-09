@@ -1,0 +1,17 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "cushion_thickness": "25",
+            "h_slots": "25",
+            "head_h": "14.5",
+            "head_od": "24",
+            "mallet_od": "40",
+            "neck_h": "8",
+            "neck_od": "20",
+            "neck_taper": "3",
+            "output": "body",
+            "vanity_chamfers": "4"
+        }
+    }
+}
