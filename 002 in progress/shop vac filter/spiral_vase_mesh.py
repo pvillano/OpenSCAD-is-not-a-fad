@@ -1,24 +1,28 @@
-from itertools import chain, product
+from itertools import chain
 from math import pi, sin, cos, ceil, atan
 
 from libraries.stl import STLBuffer
 
-outer_diameter = 200
+outer_diameter = 210
 h = 200
-depth = 7
+depth = 3
 layer_height = .35
-cell_width = 9
+cell_width = 10
 nozzle_diameter = .6
 
 # unchanging
 first_layer = .2
 filter_od_unused = 175
 
-sector_count = round(pi*outer_diameter/cell_width/4)*2+1
+sector_count = round(pi*outer_diameter/cell_width/2)*2+1
 extrusion_width = .75*nozzle_diameter
 inner_diameter = outer_diameter - 2*depth
 
+print(f"Room for charcoal: {(inner_diameter-filter_od_unused)/2-extrusion_width:.2f}mm")
+
 n = ceil(h / layer_height * sector_count)+1
+
+print(f"{sector_count=} {n=}")
 
 type Point = tuple[float, float, float]
 type Triangle = tuple[Point, Point, Point]
@@ -38,29 +42,31 @@ def quad_to_tris(quad: Quad) -> tuple[Triangle, Triangle]:
     return tuple(ret)
 
 """
-Each sector is seven quads
-five for the inset,
-    one below,
-and one to the side
+Each sector is six or two quads
+depending on whether it is a hole or not
 
-p01--------p11----------------p21
-||| before |||     hole?     |||
-p00--------p10----------------p20
-a0         a1                 a2
+p01---------p11---------------------p21
+ |           |  \\      top      //  | 
+ |           |     p11a------p21a    | 
+ |  before   | left ||  back  ||right| 
+ |           |     p10a------p20a    | 
+ |           |  //    bottom     \\  | 
+p00---------p10---------------------p20
+a0          a1     a1a        a2a    a2
 
-p11--------------------p21
- |  \\      top     //  | 
- |    p11a------p21a    | 
- |  L  ||  back  ||  R  | 
- |    p10a------p20a    | 
- |  //    bottom    \\  | 
-p10--------------------p20
-a1   a1a        a2a    a2
+p01---------p11--------------------p21
+ |           |                      | 
+ |           |                      | 
+ |  before   |         hole         | 
+ |           |                      | 
+ |           |                      | 
+p00---------p10--------------------p20
+a0          a1                     a2
 """
 
 def main():
 
-    stlOut = STLBuffer()
+    stl_out = STLBuffer()
 
     half_angle_outer = atan(extrusion_width/outer_diameter)
     half_angle_inner = atan(extrusion_width/inner_diameter)
@@ -97,8 +103,8 @@ def main():
 
             before = (p00, p10, p11, p01)
             hole = (p10, p20, p21, p11)
-            stlOut.write_triangles(quad_to_tris(before))
-            stlOut.write_triangles(quad_to_tris(hole))
+            stl_out.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(hole))
 
             # put another layer below
             h0 = -.2-layer_height/2+.001
@@ -110,15 +116,15 @@ def main():
 
             before = (p00, p10, p11, p01)
             hole = (p10, p20, p21, p11)
-            stlOut.write_triangles(quad_to_tris(before))
-            stlOut.write_triangles(quad_to_tris(hole))
+            stl_out.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(hole))
 
             pzero = (0,0,h0)
             strip0 = (p00, pzero, p10)
             strip1 =(p10, pzero, p20)
 
-            stlOut.write_triangle(strip0,)
-            stlOut.write_triangle(strip1)
+            stl_out.write_triangle(strip0,)
+            stl_out.write_triangle(strip1)
         elif i >= n-sector_count:
             h = coord(n)[2]
             pzero = (0,0,h)
@@ -133,21 +139,21 @@ def main():
             strip0 = (p11, pzero, p01)
             strip1 =(p21, pzero, p11)
 
-            stlOut.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(before))
 
-            stlOut.write_triangles(quad_to_tris(hole))
-            stlOut.write_triangle(strip0)
-            stlOut.write_triangle(strip1)
+            stl_out.write_triangles(quad_to_tris(hole))
+            stl_out.write_triangle(strip0)
+            stl_out.write_triangle(strip1)
         elif i%2 == 0:
             # first is never a hole
-            stlOut.write_triangles(quad_to_tris(before))
-            stlOut.write_triangles(quad_to_tris(hole))
+            stl_out.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(hole))
         elif i == n-sector_count - 1:
             # last is never a hole
-            stlOut.write_triangles(quad_to_tris(before))
-            stlOut.write_triangles(quad_to_tris(hole))
+            stl_out.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(hole))
         else:
-            stlOut.write_triangles(quad_to_tris(before))
+            stl_out.write_triangles(quad_to_tris(before))
 
             left = (p10, p10a, p11a, p11)
             bottom = (p10, p20, p20a, p10a)
@@ -157,9 +163,9 @@ def main():
             quads = [left, bottom, right, top, back]
             tris = chain.from_iterable(quad_to_tris(quad) for quad in quads)
 
-            stlOut.write_triangles(tris)
+            stl_out.write_triangles(tris)
 
     with open("output.stl", "wb") as f:
-        f.write(stlOut.getvalue())
+        f.write(stl_out.getvalue())
 if __name__ == '__main__':
     main()
